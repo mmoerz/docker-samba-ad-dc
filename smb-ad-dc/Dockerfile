@@ -26,5 +26,5 @@ COPY docker-entrypoint.sh /docker-entrypoint.sh
 COPY tools /root/tools
 RUN chmod +x /root/tools/*.sh
 
-ENTRYPOINT ["/root/docker-entrypoint.sh"]
+ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["samba"]

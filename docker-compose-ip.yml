@@ -5,11 +5,12 @@ services:
     build: smb-ad-dc
     image: samba4-ad-dc:4.11
     privileged: true
+    network_mode: host
     volumes:
-      - /etc/samba:vol/etc
-      - /var/lib/samba:vol/sys
-      - /var/log/samba:vol/log
-      - /srv/shares:/srv/shares
+      - ./vol/etc:/etc/samba:rw
+      - ./vol/sys:/var/lib/samba:rw
+      - ./vol/log:/var/log/samba:rw
+      - /srv/shares:/srv/shares:rw
     env_file:
       - ./samba.env
     ports:
