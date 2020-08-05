@@ -2,9 +2,9 @@ FROM ubuntu:focal
 MAINTAINER natoka <natoka AT natoka dot de>
 
 #
-# TODO: volume for private, shares missing
+# TODO: volume for private
 #
-VOLUME ["/var/lib/samba", "/etc/samba", "/var/log/samba"]
+VOLUME ["/var/lib/samba", "/etc/samba", "/var/log/samba", "/srv/shares"]
 ENV DEBIAN_FRONTEND noninteractive
 
 #COPY smb.conf /etc/samba/smb.conf
@@ -19,13 +19,12 @@ RUN apt-get install -y openssl && \
     apt-get autoclean && \
     rm -rf /var/cache/apt/archives/*
 
-COPY facl-test.sh /root/facl-test.sh
-COPY docker-entrypoint.sh /root/docker-entrypoint.sh
-COPY sysvol_reset.sh /root/sysvol_reset.sh
-COPY sysvol_extreset.sh /root/sysvol_extreset.sh
-RUN chmod +x /root/*.sh
+# create directory for shares
+RUN mkdir /srv/shares
+
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+COPY tools /root/tools
+RUN chmod +x /root/tools/*.sh
 
 ENTRYPOINT ["/root/docker-entrypoint.sh"]
 CMD ["samba"]
-
-
