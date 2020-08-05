@@ -6,9 +6,10 @@ services:
     image: samba4-ad-dc:4.11
     privileged: true
     volumes:
-      - vol/etc:/etc/samba
-      - vol/sys:/var/lib/samba
-      - vol/log:/var/log/samba
+      - /etc/samba:vol/etc
+      - /var/lib/samba:vol/sys
+      - /var/log/samba:vol/log
+      - /srv/shares:/srv/shares
     env_file:
       - ./samba.env
     ports:

@@ -19,8 +19,8 @@ RUN apt-get install -y openssl && \
     apt-get autoclean && \
     rm -rf /var/cache/apt/archives/*
 
-# create directory for shares
-RUN mkdir /srv/shares
+# create directory for shares not needed is a volume!
+#RUN mkdir -f /srv/shares
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 COPY tools /root/tools
