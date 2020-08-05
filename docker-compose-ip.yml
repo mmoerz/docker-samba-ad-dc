@@ -1,0 +1,32 @@
+version: '3.2'
+
+services:
+  samba:
+    build: smb-ad-dc
+    image: samba4-ad-dc:4.11
+    privileged: true
+    volumes:
+      - vol/etc:/etc/samba
+      - vol/sys:/var/lib/samba
+      - vol/log:/var/log/samba
+    env_file:
+      - ./samba.env
+    ports:
+      # for details see https://wiki.samba.org/index.php/Samba_AD_DC_Port_Usage
+      - $SAMBA_IP:53:53/tcp
+      - $SAMBA_IP:53:53/udp
+      - $SAMBA_IP:88:88/tcp
+      - $SAMBA_IP:88:88/udp
+      - $SAMBA_IP:135:135/tcp
+      - $SAMBA_IP:137:137/udp
+      - $SAMBA_IP:138:138/udp
+      - $SAMBA_IP:139:139/tcp
+      - $SAMBA_IP:389:389/tcp
+      - $SAMBA_IP:389:389/udp
+      - $SAMBA_IP:445:445/tcp
+      - $SAMBA_IP:464:464/tcp
+      - $SAMBA_IP:464:464/udp
+      - $SAMBA_IP:636:636/tcp
+      - $SAMBA_IP:3268-3269:3268-3269/tcp
+      - $SAMBA_IP:49152-65535:49152-65535/tcp
+  
