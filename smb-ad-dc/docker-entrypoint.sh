@@ -50,8 +50,10 @@ if [ ! -f /etc/samba/smb.conf ]; then
         --use-rfc2307 \
 	${HOSTIP_OPTION}
 #        --option="allow dns updates = disabled"
+	sleep 5
 	if [ "${SAMBA_NOCOMPLEXPWD,,}" = "true" ]; then
-		samba-tool domain samba-tool domain passwordsettings set --complexity=off
+		echo "samba-tool domain passwordsettings set --complexity=off"
+		samba-tool domain passwordsettings set --complexity=off
 		samba-tool domain passwordsettings set --history-length=0
 		samba-tool domain passwordsettings set --min-pwd-age=0
 		samba-tool domain passwordsettings set --max-pwd-age=0
