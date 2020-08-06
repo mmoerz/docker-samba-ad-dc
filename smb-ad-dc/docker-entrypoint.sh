@@ -50,19 +50,23 @@ if [ ! -f /etc/samba/smb.conf ]; then
         --use-rfc2307 \
 	${HOSTIP_OPTION}
 #        --option="allow dns updates = disabled"
-	sleep 5
-	if [ "${SAMBA_NOCOMPLEXPWD,,}" = "true" ]; then
-		echo "samba-tool domain passwordsettings set --complexity=off"
-		samba-tool domain passwordsettings set --complexity=off
-		samba-tool domain passwordsettings set --history-length=0
-		samba-tool domain passwordsettings set --min-pwd-age=0
-		samba-tool domain passwordsettings set --max-pwd-age=0
-	fi
-	if [ "${SAMBA_DNS_FORWARDER}" != "NONE" ]; then
-		sed -i "/\[global\]/a \
-			\\\tdns forwarder = ${SAMBA_DNSFORWARDER}\
-			" /etc/samba/smb.conf
-	fi
+    sleep 5
+    if [ "${SAMBA_NOCOMPLEXPWD,,}" = "true" ]; then
+        echo "samba-tool domain passwordsettings set --complexity=off"
+	samba-tool domain passwordsettings set --complexity=off
+	samba-tool domain passwordsettings set --history-length=0
+	samba-tool domain passwordsettings set --min-pwd-age=0
+	samba-tool domain passwordsettings set --max-pwd-age=0
+    fi
+    if [ "${SAMBA_DNS_FORWARDER}" != "NONE" ]; then
+        sed -i "/\[global\]/a \
+            \\\tdns forwarder = ${SAMBA_DNSFORWARDER}\
+            " /etc/samba/smb.conf
+    fi
+    # copy kerberos config
+    cp /var/lib/samba/private/krb5.conf /etc/krb5.conf
+    # fix dns resolv
+    sed -i "s/\(nameserver\s\+\).*/\1127.0.0.1/" /etc/resolv.conf
 fi
 
 if [ "$1" = 'samba' ]; then

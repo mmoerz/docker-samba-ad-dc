@@ -12,11 +12,12 @@ ENV DEBIAN_FRONTEND noninteractive
 # PKG: acl for getfacl & setfacl
 # winbindd is a must for ac dc
 RUN apt-get clean && apt-get update && \
-    apt-get install -y attr acl samba smbclient samba-vfs-modules winbind libnss-winbind libpam-winbind
+    apt-get install -y attr acl samba smbclient samba-vfs-modules winbind libnss-winbind libpam-winbind \
+                       openssl
 RUN apt-get install -y ldap-utils ldb-tools cifs-utils smbldap-tools 
-RUN apt-get install -y vim
-RUN apt-get install -y openssl && \
-    apt-get autoclean && \
+# tools for debugging
+RUN apt-get install -y vim bind9-host krb5-user iputils-ping
+RUN apt-get autoclean && \
     rm -rf /var/cache/apt/archives/*
 
 # create directory for shares not needed is a volume!
