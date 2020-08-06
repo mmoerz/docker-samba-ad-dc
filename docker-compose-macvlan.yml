@@ -1,0 +1,44 @@
+version: '3.2'
+
+services:
+  samba:
+    build: smb-ad-dc
+    image: samba4-ad-dc:4.11
+    hostname: dc
+    privileged: true
+    volumes:
+      - ./vol/etc:/etc/samba:rw
+      - ./vol/sys:/var/lib/samba:rw
+      - ./vol/log:/var/log/samba:rw
+      - /srv/shares:/srv/shares:rw
+    env_file:
+      - ./samba.env
+    ports:
+      - 53:53
+      - 53:53/udp
+      - 88:88
+      - 88:88/udp
+      - 135:135
+      - 137:137
+      - 138:138/udp
+      - 139:139
+      - 389:389
+      - 389:389/udp
+      - 445:445
+      - 464:464
+      - 464:464/udp
+      - 636:636
+      - 3268-3269:3268-3269
+    networks:
+      samba-network:
+        ipv4_address: 192.168.151.16
+
+networks:
+  samba-network:
+    driver: macvlan
+    ipam:
+      config:
+        - subnet: 192.168.151.0/24
+    driver_opts:
+      parent: br0
+  
