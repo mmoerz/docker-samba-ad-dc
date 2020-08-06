@@ -1,5 +1,8 @@
 FROM ubuntu:focal
-MAINTAINER natoka <natoka AT natoka dot de>
+MAINTAINER Michael Moerz <michael AT moerz dot co dot at .>
+
+ARG version
+ARG build_date
 
 #
 # TODO: volume for private
@@ -16,7 +19,7 @@ RUN apt-get clean && apt-get update && \
                        openssl
 RUN apt-get install -y ldap-utils ldb-tools cifs-utils smbldap-tools 
 # tools for debugging
-RUN apt-get install -y vim bind9-host krb5-user iputils-ping
+RUN apt-get install -y vim bind9-host krb5-user iputils-ping iproute2
 RUN apt-get autoclean && \
     rm -rf /var/cache/apt/archives/*
 
@@ -26,6 +29,8 @@ RUN apt-get autoclean && \
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 COPY tools /root/tools
 RUN chmod +x /root/tools/*.sh
+
+LABEL org.label-schema.build-date=$build_date org.label-schema.vcs-url="https://github.com/mmoerz/docker-samba-ad-ac" org.label-schema.vcs-ref=$version org.label-schema.schema-version="1.0"
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["samba"]
