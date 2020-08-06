@@ -3,7 +3,7 @@ version: '3.2'
 services:
   samba:
     build: smb-ad-dc
-    image: samba4-ad-dc:4.11
+    image: mmoerz/docker-samba-ad-dc:4.11
     hostname: dc
     privileged: true
     volumes:
