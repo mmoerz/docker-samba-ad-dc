@@ -16,12 +16,14 @@ Setup your own samba.env file with your choice of options by copying the example
 
 ``cp samba.env.example samba.env``
 
+Then start the container. It will immediatly provision the domain and start samba afterwards.
 
 ### Environment Variables explained
 
 The environment variables are passed on to the domain provising of samba-tool 
 
-SAMBA_DC_HOSTNAME=dc 
+* SAMBA_DC_HOSTNAME=dc 
+
 if you change this, you will need to change the hostname in the dockerfile as well
 
 SAMBA_DC_HOSTIP=
@@ -42,8 +44,6 @@ Sets the dns server that dns queries are forwarded to.
 SAMBA_NOCOMPLEXPWD=true
 If true then sets the password complexity to off, expiry and password history is turned off as well, otherwise password complexity is left alone. 
 
-Then start the container. It will immediatly provision the domain and start samba afterwards.
-
 ## Volumes
 
 As the docker file defines, and the docker-compose file configures, those are the volumes:
@@ -60,6 +60,8 @@ You can either use the following command to build the docker image for the samba
 ``build.sh``
 
 or simple use docker-compose
+
+``docker-compose build``
 
 There are other docker-compose files present that will most likely not work as expected.
 
