@@ -66,7 +66,9 @@ if [ ! -f /etc/samba/smb.conf ]; then
     # copy kerberos config
     cp /var/lib/samba/private/krb5.conf /etc/krb5.conf
     # fix dns resolv
-    sed -i "s/\(nameserver\s\+\).*/\1127.0.0.1/" /etc/resolv.conf
+    cp /etc/resolv.conf /etc/resolv.conf.bak
+    sed -i "s/\(nameserver\s\+\).*/\1127.0.0.1/" /etc/resolv.conf.bak
+    cat /etc/resolv.conf.bak > /etc/resolv.conf
 fi
 
 if [ "$1" = 'samba' ]; then
