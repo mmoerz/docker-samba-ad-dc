@@ -113,10 +113,15 @@ EOF
             \\\tdns forwarder = ${SAMBA_DNSFORWARDER}\
             " /etc/samba/smb.conf
     fi
-    # link kerberos config (so that it may be modified)
-    rm /etc/krb5.conf
-    ln -s /var/lib/samba/private/krb5.conf /etc/krb5.conf
 fi
+
+# link kerberos config (so that it may be modified)
+rm /etc/krb5.conf
+ln -s /var/lib/samba/private/krb5.conf /etc/krb5.conf
+# extend lookup to use winbind
+sed -i -e "s/\(passwd:.*\)/\1 winbind/" \
+    -e "s/\(group:.*\)/\1 winbind/" /etc/nsswitch.conf
+
 
 patch_resolv 127.0.0.1
 

@@ -61,6 +61,14 @@ As the docker file defines, and the docker-compose file configures, those are th
 /var/log/samba
 /srv/shares
 
+## Joining a domain as a dc
+
+Be warned, this are my own notes and may or may not work:
+
+* hot backup idmap
+
+* rsync sysvol
+
 ## Building
 
 You can either use the following command to build the docker image for the samba ad dc:
