@@ -27,17 +27,11 @@ For in-depth information see the fine [Samba Wiki](https://wiki.samba.org/index.
 parameter | purpose
 --------- | --------
 ``` SAMBA_DC_HOSTNAME=dc ``` | Hostname of the containerized domain controller. If you change this, you will need to change the hostname in the dockerfile as well.
-
 ``` SAMBA_DC_HOSTIP= ``` | should be left alone (is a leftover from trying to make it work with host network)
-
 ```SAMBA_DC_ADMIN_PASSWD=replacePassword``` | Yeah for real, please change this to something secure.
-
 ```SAMBA_DC_REALM=my.domain``` | replace with your active directory domain name
-
 ```SAMBA_DNS_BACKEND=SAMBA_INTERNAL``` | should be left alone
-
 ```SAMBA_DNS_FORWARDER=192.168.1.254``` | Sets the dns server that dns queries are forwarded to.
-
 ```SAMBA_NOCOMPLEXPWD=true``` | If true then sets the password complexity to off, expiry and password history is turned off as well, otherwise password complexity is left alone. 
 
 ## Volumes
@@ -74,6 +68,7 @@ Be warned, this are my own notes and may or may not work:
 ### fsmo transfer / seizure
 Ideas shamelessly copied from 
 [Samba documentation - fsmo](https://wiki.samba.org/index.php/Transferring_and_Seizing_FSMO_Roles#Transferring_an_FSMO_Role)
+
 ```samba-tool fsmo show```
 
 ```samba-tool fsmo transfer --role=...```
