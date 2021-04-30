@@ -56,7 +56,15 @@ You can point those to the paths of your liking, e.g:
 
 ## Joining a domain as a dc
 
-Be warned, this are my own notes and may or may not work:
+Be warned, this are my own notes and may or may not work!
+
+add to .env file:
+
+parameter | purpose
+--------- | --------
+SAMBA_PROVISION_TYPE=JOIN | provisioning type: DC for standalone domain controller
+or JOIN for joining an existing domain
+
 
 ###
 * hot backup idmap
