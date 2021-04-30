@@ -24,6 +24,8 @@ The environment variables are passed on to the domain provising of samba-tool.
 For in-depth information see the fine [Samba Wiki](https://wiki.samba.org/index.php/Setting_up_Samba_as_an_Active_Directory_Domain_Controller#Parameter_Explanation) on
 [samba-tool](https://wiki.samba.org/index.php/Setting_up_Samba_as_an_Active_Directory_Domain_Controller#Provisioning_a_Samba_Active_Directory).
 
+parameter | purpose
+--------- | --------
 ``` SAMBA_DC_HOSTNAME=dc ``` | Hostname of the containerized domain controller. If you change this, you will need to change the hostname in the dockerfile as well.
 
 ``` SAMBA_DC_HOSTIP= ``` | should be left alone (is a leftover from trying to make it work with host network)
@@ -43,6 +45,7 @@ For in-depth information see the fine [Samba Wiki](https://wiki.samba.org/index.
 As the docker file defines, and the docker-compose file configures, those are the volumes:
 
 volume      | purpose
+----------- | -------
 /etc/samba | config files
 /var/lib/samba | sysvolume
 /var/log/samba | logfiles
