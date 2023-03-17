@@ -10,6 +10,28 @@ This was inspired by other older docker containers that either don't work or use
 
 The container *needs* a macvtap based network. You may try other network types, however you have been warned, it will most likely not work without problems.
 
+# Install
+## On Clearlinux
+### bundles
+```
+swupd bundle-add acl
+```
+
+### Docker compose installation
+(shamelessly stolen from original documentation - look there for updates ...)
+
+```
+DOCKER_CONFIG=${DOCKER_CONFIG:-$HOME/.docker}
+
+mkdir -p $DOCKER_CONFIG/cli-plugins
+
+curl -SL https://github.com/docker/compose/releases/download/v2.14.0/docker-compose-linux-x86_64 -o $DOCKER_CONFIG/cli-plugins/docker-compose
+
+chmod +x $DOCKER_CONFIG/cli-plugins/docker-compose
+
+docker compose version
+```
+
 ## Running
 
 Setup your own samba.env file with your choice of options by copying the example.
