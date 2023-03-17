@@ -1,61 +1,58 @@
 version: '3.2'
 
 volumes:
-  samba_etc:
+  samba_dc_etc:
     external: true
-  samba_varlib:
+  samba_dc_varlib:
     external: true
-  samba_varlog:
+  samba_dc_varlog:
+    external: true
+  samba_dc_supervisord:
+    external: true
+
+  samba_fs1_etc:
+    external: true
+  samba_fs1_varlib:
+    external: true
+  samba_fs1_varlog:
+    external: true
+  samba_fs1_supervisord:
+    external: true
+  samba_fs1_shares:
     external: true
 
 services:
   samba:
     build: smb-ad-dc
-    image: mmoerz/docker-samba-ad-dc:4.15
+    image: mmoerz/docker-samba-ad-dc:4.16
     hostname: dc1
     privileged: true
     volumes:
-      - samba_etc:/etc/samba
-      - samba_varlib:/var/lib/samba
-      - samba_varlog:/var/log/samba
+      - samba_dc_etc:/etc/samba
+      - samba_dc_varlib:/var/lib/samba
+      - samba_dc_varlog:/var/log/samba
     env_file:
       - ./samba.env
-    ports:
-      - 53:53
-      - 53:53/udp
-      - 88:88
-      - 88:88/udp
-      - 135:135
-      - 137:137
-      - 138:138/udp
-      - 139:139
-      - 389:389
-      - 389:389/udp
-      - 445:445
-      - 464:464
-      - 464:464/udp
-      - 636:636
-      - 3268-3269:3268-3269
     networks:
       samba-network:
-        ipv4_address: 192.168.146.53
+        ipv4_address: 192.168.1.x
 
   samba-member:
     command: samba-member
-    image: mmoerz/docker-samba-ad-dc:4.15
-    hostname: lex
+    image: mmoerz/docker-samba-ad-dc:4.16
+    hostname: fs1
     privileged: true
     volumes:
-      - /srv/samba-lex/etc:/etc/samba
-      - /srv/samba-lex/lib:/var/lib/samba
-      - /srv/samba-lex/log:/var/log/samba
-      - /srv/samba-lex/supervisord:/var/log/supervisord
-      - /srv/samba-lex/shares:/shares
+      - samba_fs1_etc:/etc/samba
+      - samba_fs1_varlib:/var/lib/samba
+      - samba_fs1_log:/var/log/samba
+      - samba_fs1_supervisord:/var/log/supervisord
+      - samba_fs1_shares:/shares
     env_file:
       - ./samba-member.env
     networks:
       samba-network:
-        ipv4_address: 192.168.146.54
+        ipv4_address: 192.168.1.xx
 
 
 networks:
@@ -63,9 +60,9 @@ networks:
     driver: macvlan
     ipam:
       config:
-        - subnet: 192.168.146.0/24
-          ip_range: 192.168.146.0/24
-          gateway: 192.168.146.50
+        - subnet: 192.168.1.0/24
+          ip_range: 192.168.1.0/24
+          gateway: 192.168.1.50
     driver_opts:
       parent: br0
   
