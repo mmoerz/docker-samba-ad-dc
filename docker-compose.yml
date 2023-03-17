@@ -1,13 +1,13 @@
 version: '3.2'
 
 volumes:
-  samba_dc_etc:
+  samba_dc1_etc:
     external: true
-  samba_dc_varlib:
+  samba_dc1_varlib:
     external: true
-  samba_dc_varlog:
+  samba_dc1_varlog:
     external: true
-  samba_dc_supervisord:
+  samba_dc1_supervisord:
     external: true
 
   samba_fs1_etc:
@@ -28,9 +28,9 @@ services:
     hostname: dc1
     privileged: true
     volumes:
-      - samba_dc_etc:/etc/samba
-      - samba_dc_varlib:/var/lib/samba
-      - samba_dc_varlog:/var/log/samba
+      - samba_dc1_etc:/etc/samba
+      - samba_dc1_varlib:/var/lib/samba
+      - samba_dc1_varlog:/var/log/samba
     env_file:
       - ./samba.env
     networks:
@@ -50,7 +50,7 @@ services:
       - samba_fs1_shares:/shares
     env_file:
       - ./samba-member.env
-    networks:
+    networks:samba
       samba-network:
         ipv4_address: 192.168.1.xx
 
