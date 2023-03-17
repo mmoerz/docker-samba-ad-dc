@@ -16,7 +16,7 @@ ENV DEBIAN_FRONTEND noninteractive
 # winbindd is a must for ac dc
 RUN apt-get clean && apt-get update && \
     apt-get install -y attr acl samba smbclient samba-vfs-modules winbind libnss-winbind libpam-winbind \
-                       openssl
+                       openssl supervisor
 RUN apt-get install -y ldap-utils ldb-tools cifs-utils smbldap-tools 
 # tools for debugging
 RUN apt-get install -y vim bind9-host krb5-user iputils-ping iproute2
@@ -27,6 +27,7 @@ RUN apt-get autoclean && \
 #RUN mkdir -f /srv/shares
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY tools /root/tools
 RUN chmod +x /root/tools/*.sh
 
