@@ -45,12 +45,12 @@ services:
     volumes:
       - samba_fs1_etc:/etc/samba
       - samba_fs1_varlib:/var/lib/samba
-      - samba_fs1_log:/var/log/samba
+      - samba_fs1_varlog:/var/log/samba
       - samba_fs1_supervisord:/var/log/supervisord
       - samba_fs1_shares:/shares
     env_file:
       - ./samba-member.env
-    networks:samba
+    networks:
       samba-network:
         ipv4_address: 192.168.1.xx
 
