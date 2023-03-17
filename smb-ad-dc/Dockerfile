@@ -1,4 +1,4 @@
-FROM ubuntu:focal
+FROM ubuntu:kinetic
 MAINTAINER Michael Moerz <michael AT moerz dot co dot at .>
 
 ARG version
