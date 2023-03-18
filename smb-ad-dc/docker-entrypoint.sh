@@ -5,16 +5,16 @@ NC='\033[0m' #no color
 YEL='\033[1;33m'
 GR='\033[1;32m'
 
-ENVVARS="SAMBA_DOMAIN SAMBA_REALM SAMBA_DC_ADMIN_PASSWD"
+ENVVARS="SAMBA_DOMAIN SAMBA_AD_REALM SAMBA_AD_ADMIN_PASSWD"
 
 SAMBA_PROVISION_TYPE=${SAMBA_PROVISION_TYPE:-SERVER}
 SAMBA_PROVISION_TYPE=${SAMBA_PROVISION_TYPE^^}
 REMOTE_DC=${REMOTE_DC:-NONE}
-SAMBA_REALM=${SAMBA_REALM:-XDOM.EXAMPLE.LOCAL}
-SAMBA_REALM=${SAMBA_REALM^^}
-LOWERCASE_DOMAIN=${SAMBA_REALM,,}
+SAMBA_AD_REALM=${SAMBA_AD_REALM:-XDOM.EXAMPLE.LOCAL}
+SAMBA_AD_REALM=${SAMBA_AD_REALM^^}
+LOWERCASE_DOMAIN=${SAMBA_AD_REALM,,}
 SAMBA_DOMAIN=${LOWERCASE_DOMAIN%%.*}
-SAMBA_DC_ADMIN_PASSWD=${SAMBA_DC_ADMIN_PASSWD:-youshouldchangethis}
+SAMBA_AD_ADMIN_PASSWD=${SAMBA_AD_ADMIN_PASSWD:-youshouldchangethis}
 SAMBA_DNS_BACKEND=${SAMBA_DNS_BACKEND:-SAMBA_INTERNAL}
 SAMBA_DNS_FORWARDER=${SAMBA_DNS_FORWARDER:-NONE}
 SAMBA_NOCOMPLEXPWD=${SAMBA_NOCOMPLEXPWD:-false}
@@ -26,14 +26,24 @@ if [ "${SAMBA_HOSTIP}" != "NONE" ]; then
 	HOSTIP_OPTION="--host-ip=$SAMBA_HOSTIP"
 fi
 
+set +e
+md5sum -c <<EOF
+25979b7571c1cf2e79ae9a0f9e676c8a  /etc/samba/smb.conf
+EOF
+if [ $? -eq 0 ]; then
+	echo -e "${GR}default alpine smb.conf found, deleting"
+	rm /etc/samba/smb.conf
+fi
+set -e
+
 perl -E 'say "=" x 100'
 echo -e "${YEL}PARAM1: $1"
 echo 
 echo -e "${YEL}SAMBA_PROVISION_TYPE:\t\t${NC}${SAMBA_PROVISION_TYPE}"
 echo -e "${YEL}REMOTE_DC:\t\t${NC}${REMOTE_DC}"
-echo -e "${YEL}SAMBA_REALM:\t\t${NC}${SAMBA_REALM}"
+echo -e "${YEL}SAMBA_AD_REALM:\t\t${NC}${SAMBA_AD_REALM}"
 echo -e "${YEL}SAMBA_DOMAIN:\t${NC}${SAMBA_DOMAIN}"
-echo -e "${YEL}SAMBA_DC_ADMIN_PASSWD:\t${NC}${SAMBA_DC_ADMIN_PASSWD}"
+echo -e "${YEL}SAMBA_AD_ADMIN_PASSWD:\t${NC}${SAMBA_AD_ADMIN_PASSWD}"
 echo -e "${YEL}SAMBA_DNS_BACKEND:\t${NC}${SAMBA_DNS_BACKEND}"
 echo -e "${YEL}SAMBA_DNS_FORWARDER:\t${NC}${SAMBA_DNS_FORWARDER}"
 echo -e "${YEL}SAMBA_NOCOMPLEXPWD:\t${NC}${SAMBA_NOCOMPLEXPWD}"
@@ -43,7 +53,7 @@ echo -e "${YEL}SAMBA_HOSTIP:\t\t${NC}${SAMBA_HOSTIP}"
 function patch_resolv {
 cat > /etc/resolv.conf <<EOF
 nameserver $1
-search ${SAMBA_REALM,,}
+search ${SAMBA_AD_REALM,,}
 options ndots:0
 EOF
 }
@@ -53,7 +63,7 @@ cat > /etc/samba/smb.conf <<EOF
 [global]
 	security = ADS
 	workgroup = ${SAMBA_DOMAIN}
-	realm = ${SAMBA_REALM}
+	realm = ${SAMBA_AD_REALM}
 
 	log file = /var/log/samba/%m.log
 	log level = 1
@@ -85,17 +95,17 @@ function fix_etchosts {
 if [ ! -f /etc/samba/smb.conf ]; then
     if [ ${SAMBA_PROVISION_TYPE} == "SERVER" ] ; then
         echo -e "samba-tool domain provision --domain=${SAMBA_DOMAIN} \
-            --adminpass=${SAMBA_DC_ADMIN_PASSWD} \
+            --adminpass=${SAMBA_AD_ADMIN_PASSWD} \
             --server-role=dc \
-            --realm=${SAMBA_REALM} \n \
+            --realm=${SAMBA_AD_REALM} \n \
             --dns-backend=${SAMBA_DNS_BACKEND} \
             --host-name=${SAMBA_HOSTNAME} \
             --use-rfc2307 \
             ${HOSTIP_OPTION}"
         samba-tool domain provision --domain="${SAMBA_DOMAIN}" \
-            --adminpass="${SAMBA_DC_ADMIN_PASSWD}" \
+            --adminpass="${SAMBA_AD_ADMIN_PASSWD}" \
             --server-role=dc \
-            --realm="${SAMBA_REALM}" \
+            --realm="${SAMBA_AD_REALM}" \
             --dns-backend="${SAMBA_DNS_BACKEND}" \
             --host-name="${SAMBA_HOSTNAME}" \
             --use-rfc2307 \
@@ -118,14 +128,14 @@ if [ ! -f /etc/samba/smb.conf ]; then
 [libdefaults]
     dns_lookup_realm = false
     dns_lookup_kdc = true
-    default_realm = ${SAMBA_REALM}
+    default_realm = ${SAMBA_AD_REALM}
 EOF
          # test if dns and kerberos connection work
          #apt-get install expect
 	 #cat > /root/kinit_test.expect <<EOF
 ##!/bin/expect
 #
-#set pwd "${SAMBA_DC_ADMIN_PASSWD}"
+#set pwd "${SAMBA_AD_ADMIN_PASSWD}"
 #
 #spawn /usr/bin/kinit administrator
 #
@@ -133,25 +143,25 @@ EOF
 #send "\$pwd"
 #EOF
 #	 /usr/bin/expect /root/kinit_test.expect
-	 echo "${SAMBA_DC_ADMIN_PASSWD}" | kinit administrator
+	 echo "${SAMBA_AD_ADMIN_PASSWD}" | kinit administrator
 	 klist
 	 RC=$?
 	 # now join the domain
     	 if [ "${SAMBA_PROVISION_TYPE}" == "2ndDC" ]; then
 	     if [ $RC -eq 0 ]; then
              	echo -e "${GR} ******************************************"
-             	echo -e "${GR} JOINING DOMAIN ${SAMBA_REALM} as DC now" 
+             	echo -e "${GR} JOINING DOMAIN ${SAMBA_AD_REALM} as DC now" 
              	echo -e "${GR} ******************************************"
-	        samba-tool domain join ${SAMBA_REALM} DC -k yes
+	        samba-tool domain join ${SAMBA_AD_REALM} DC -k yes
              fi
 	 fi
     	 if [ "${SAMBA_PROVISION_TYPE}" == "MEMBER" ]; then
 	     if [ $RC -eq 0 ]; then
              	echo -e "${GR} **********************************************"
-             	echo -e "${GR} JOINING DOMAIN ${SAMBA_REALM} as Member now" 
+             	echo -e "${GR} JOINING DOMAIN ${SAMBA_AD_REALM} as Member now" 
              	echo -e "${GR} **********************************************"
 		create_fileserver_smbconf 
-	        samba-tool domain join ${SAMBA_REALM} MEMBER -k yes
+	        samba-tool domain join ${SAMBA_AD_REALM} MEMBER -k yes
              fi
 	 fi
     fi
@@ -163,6 +173,9 @@ EOF
     fi
 else 
 	echo -e "${GR} /etc/samba/smb.conf exists, no provisioning"
+fi
+if [ ! -e /etc/samba/smb.conf ]; then
+	echo -e "${RED} /etc/samba/smb.conf was not created"
 fi
 
 # link kerberos config (so that it may be modified)

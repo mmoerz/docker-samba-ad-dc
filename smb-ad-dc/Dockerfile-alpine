@@ -16,19 +16,11 @@ VOLUME ["/var/lib/samba", "/etc/samba", "/var/log/samba", "/srv/shares"]
 
 # PKG: acl for getfacl & setfacl
 # winbindd is a must for ac dc
-RUN apk add --no-cache attr acl samba openssl supervisor 
-#RUN apt-get clean && apt-get update && \
-#    apt-get install -y attr acl samba smbclient samba-vfs-modules winbind libnss-winbind libpam-winbind \
-#                       openssl supervisor
-RUN apk add --no-cache ldb bind krb5
-#RUN apt-get install -y ldap-utils ldb-tools cifs-utils smbldap-tools 
-# tools for debugging
-#RUN apt-get install -y vim bind9-host krb5-user iputils-ping iproute2
-#RUN apt-get autoclean && \
-#    rm -rf /var/cache/apt/archives/*
-
-# create directory for shares not needed is a volume!
-#RUN mkdir -f /srv/shares
+RUN apk add --no-cache attr acl openssl supervisor \  
+     ldb bind krb5 bash perl
+RUN apk add --no-cache samba samba-server samba-client \
+   samba-libnss-winbind samba-common-tools samba-dc \
+   samba-pidl samba-winbind samba-dc-libs samba-doc
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf

@@ -12,8 +12,8 @@ createDirsAndRegisterWithDocker() {
 	DIRBASE=$1
 	DIRS=$2
 	for dcd in $DIRS; do
-		#mkdir -p $dcd
-		echo docker volume create --driver local \
+		mkdir -p $DIRBASE/$dcd
+		docker volume create --driver local \
 		--opt type=none \
 		--opt device=`pwd`/$DIRBASE/$dcd \
 		--opt o=bind samba_${DIRBASE}_${dcd/\//}
