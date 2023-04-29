@@ -89,7 +89,7 @@ fi
 function fix_etchosts {
 	sed -e "s/\(.*\)${SAMBA_HOSTNAME}/\1${SAMBA_HOSTNAME}\.${LOWERCASE_DOMAIN} ${SAMBA_HOSTNAME}/" \
 		/etc/hosts > /etc/hosts.bak
-	cp -f /etc/hosts.bak /etc/hosts
+	cp -f /etc/hosts.bak /etc/hosts || true
 }
 
 if [ ! -f /etc/samba/smb.conf ]; then
@@ -200,7 +200,7 @@ if [ "$1" = 'samba' ]; then
     exec samba -i < /dev/null
 fi
 if [ "$1" = 'samba-member' ]; then
-    exec /usr/bin/supervisord -n < /dev/null
+    exec /usr/bin/supervisord -n -c /etc/supervisord.conf < /dev/null
 fi
 
 exec "$@"
