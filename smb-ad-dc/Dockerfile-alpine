@@ -23,7 +23,7 @@ RUN apk add --no-cache samba samba-server samba-client \
    samba-pidl samba-winbind samba-dc-libs samba-doc
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
-COPY supervisord.conf /etc/supervisor/supervisord.conf
+COPY supervisord.conf /etc/supervisord.conf
 COPY tools /root/tools
 RUN chmod +x /root/tools/*.sh
 

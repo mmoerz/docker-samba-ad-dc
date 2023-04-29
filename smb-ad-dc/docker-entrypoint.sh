@@ -200,7 +200,7 @@ if [ "$1" = 'samba' ]; then
     exec samba -i < /dev/null
 fi
 if [ "$1" = 'samba-member' ]; then
-    exec /usr/bin/supervisord -n < /dev/null
+    exec /usr/bin/supervisord -n -c /etc/supervisord.conf < /dev/null
 fi
 
 exec "$@"
