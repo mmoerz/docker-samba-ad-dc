@@ -161,6 +161,10 @@ EOF
              	echo -e "${GR} JOINING DOMAIN ${SAMBA_AD_REALM} as Member now" 
              	echo -e "${GR} **********************************************"
 		create_fileserver_smbconf 
+
+		# bugfix for samba - THX!!
+		ldbadd -H /var/lib/samba/private/secrets.ldb </dev/null
+		ldbadd -H /var/lib/samba/private/sam.ldb </dev/null
 	        samba-tool domain join ${SAMBA_AD_REALM} MEMBER -k yes
              fi
 	 fi
