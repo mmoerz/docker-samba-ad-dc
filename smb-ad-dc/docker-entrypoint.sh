@@ -147,7 +147,7 @@ EOF
 	 klist
 	 RC=$?
 	 # now join the domain
-    	 if [ "${SAMBA_PROVISION_TYPE}" == "2ndDC" ]; then
+    	 if [ "${SAMBA_PROVISION_TYPE}" == "2NDDC" ]; then
 	     if [ $RC -eq 0 ]; then
              	echo -e "${GR} ******************************************"
              	echo -e "${GR} JOINING DOMAIN ${SAMBA_AD_REALM} as DC now" 
