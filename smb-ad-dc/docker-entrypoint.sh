@@ -88,9 +88,14 @@ fi
 
 function fix_etchosts {
 	echo -e "rewriting hosts file inplace"
-	(rc=$(sed -e "s/\(.*\)${SAMBA_HOSTNAME}/\1${SAMBA_HOSTNAME}\.${LOWERCASE_DOMAIN} ${SAMBA_HOSTNAME}/" /etc/hosts); \
-       	echo "$rc" > /etc/hosts)
-	[ "$?" == "0" ] && echo -e "${GR}rewrite successfull"
+	fhelp=`grep ${LOWERCASE_DOMAIN} /etc/host | wc -l`
+	if [ "$fhelp" == "0" ] ; then
+	  (rc=$(sed -e "s/\(.*\)${SAMBA_HOSTNAME}/\1${SAMBA_HOSTNAME}\.${LOWERCASE_DOMAIN} ${SAMBA_HOSTNAME}/" /etc/hosts); \
+       	  echo "$rc" > /etc/hosts)
+	  [ "$?" == "0" ] && echo -e "${GR}rewrite successfull"
+	else
+		echo "${GR} already replaced"
+	fi
 }
 
 if [ ! -f /etc/samba/smb.conf ]; then
