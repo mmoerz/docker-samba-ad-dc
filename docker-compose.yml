@@ -7,8 +7,6 @@ volumes:
     external: true
   samba_dc1_varlog:
     external: true
-  samba_dc1_supervisord:
-    external: true
 
   samba_fs1_etc:
     external: true
@@ -35,7 +33,7 @@ services:
       - ./samba.env
     networks:
       samba-network:
-        ipv4_address: 192.168.1.x
+        ipv4_address: 10.0.2.200
 
   samba-member:
     command: samba-member
@@ -52,7 +50,7 @@ services:
       - ./samba-member.env
     networks:
       samba-network:
-        ipv4_address: 192.168.1.xx
+        ipv4_address: 10.0.2.201
 
 
 networks:
@@ -60,9 +58,9 @@ networks:
     driver: macvlan
     ipam:
       config:
-        - subnet: 192.168.1.0/24
-          ip_range: 192.168.1.0/24
-          gateway: 192.168.1.50
+        - subnet: 10.0.2.0/24
+          ip_range: 10.0.2.0/24
+          gateway: 10.0.2.2
     driver_opts:
-      parent: br0
+      parent: enp0s3
   
