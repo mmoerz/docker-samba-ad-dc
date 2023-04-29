@@ -166,6 +166,8 @@ EOF
 		# bugfix for samba - THX!!
 		ldbadd -H /var/lib/samba/private/secrets.ldb </dev/null
 		ldbadd -H /var/lib/samba/private/sam.ldb </dev/null
+
+		fix_etchosts
 	        samba-tool domain join ${SAMBA_AD_REALM} MEMBER -k yes
              fi
 	 fi
