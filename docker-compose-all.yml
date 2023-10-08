@@ -1,0 +1,66 @@
+version: '3.2'
+
+volumes:
+  samba_dc1_etc:
+    external: true
+  samba_dc1_varlib:
+    external: true
+  samba_dc1_varlog:
+    external: true
+
+  samba_fs1_etc:
+    external: true
+  samba_fs1_varlib:
+    external: true
+  samba_fs1_varlog:
+    external: true
+  samba_fs1_supervisord:
+    external: true
+  samba_fs1_shares:
+    external: true
+
+services:
+  samba:
+    build: smb-ad-dc
+    image: mmoerz/docker-samba-ad-dc:4.16
+    hostname: dc1
+    privileged: true
+    volumes:
+      - samba_dc1_etc:/etc/samba
+      - samba_dc1_varlib:/var/lib/samba
+      - samba_dc1_varlog:/var/log/samba
+    env_file:
+      - ./samba.env
+    networks:
+      samba-network:
+        ipv4_address: 10.0.2.200
+
+  samba-member:
+    command: samba-member
+    image: mmoerz/docker-samba-ad-dc:4.16
+    hostname: fs1
+    privileged: true
+    volumes:
+      - samba_fs1_etc:/etc/samba
+      - samba_fs1_varlib:/var/lib/samba
+      - samba_fs1_varlog:/var/log/samba
+      - samba_fs1_supervisord:/var/log/supervisord
+      - samba_fs1_shares:/shares
+    env_file:
+      - ./samba-member.env
+    networks:
+      samba-network:
+        ipv4_address: 10.0.2.201
+
+
+networks:
+  samba-network:
+    driver: macvlan
+    ipam:
+      config:
+        - subnet: 10.0.2.0/24
+          ip_range: 10.0.2.0/24
+          gateway: 10.0.2.2
+    driver_opts:
+      parent: enp0s3
+  
