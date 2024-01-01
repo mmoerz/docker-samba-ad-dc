@@ -22,7 +22,7 @@ volumes:
 services:
   samba:
     build: smb-ad-dc
-    image: mmoerz/docker-samba-ad-dc:4.16
+    image: mmoerz/docker-samba-ad-dc:4.18.9
     hostname: dc1
     privileged: true
     volumes:
@@ -37,7 +37,7 @@ services:
 
   samba-member:
     command: samba-member
-    image: mmoerz/docker-samba-ad-dc:4.16
+    image: mmoerz/docker-samba-ad-dc:4.18.9
     hostname: fs1
     privileged: true
     volumes:
