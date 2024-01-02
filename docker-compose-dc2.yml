@@ -1,0 +1,30 @@
+version: '3.2'
+
+volumes:
+  samba_dc2_etc:
+    external: true
+  samba_dc2_varlib:
+    external: true
+  samba_dc2_varlog:
+    external: true
+
+services:
+  sambadc2:
+    build: smb-ad-dc
+    image: mmoerz/docker-samba-ad-dc:4.18.9
+    hostname: dc1
+    privileged: true
+    volumes:
+      - samba_dc2_etc:/etc/samba
+      - samba_dc2_varlib:/var/lib/samba
+      - samba_dc2_varlog:/var/log/samba
+    env_file:
+      - ./samba.env
+    networks:
+      samba-network:
+        ipv4_address: 10.10.98.14
+
+networks:
+  samba-network:
+    name: samba-network
+    external: true
