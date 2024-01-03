@@ -2,9 +2,11 @@
 
 [![Project Status: Active](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 
-ubuntu based docker container for samba active directory server
+alpine based docker container for samba active directory server
+(ubuntu was nice as long as it worked. After it got hard to setup, I switched to alpine.)
 
-This was inspired by other older docker containers that either don't work or use completely outdated versions of samba. To fullfill my own requirements, I wrote this from scratch.
+This was inspired by other older docker containers that either don't work oruse completely outdated versions of samba. 
+To fullfill my own set of requirements, I wrote this from scratch.
 
 # Limitations
 
