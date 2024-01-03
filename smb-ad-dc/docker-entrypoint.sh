@@ -196,8 +196,9 @@ fi
 # link kerberos config (so that it may be modified)
 if [ -f /var/lib/samba/private/krb5.conf ]; then
 	echo -e "replacing krb5.conf with samba version"
-	rm -f /etc/krb5.conf
-	ln -s /var/lib/samba/private/krb5.conf /etc/krb5.conf
+  mv /etc/krb5.conf /etc/krb5.conf.orig
+	# according to provisioning script symlinking is bad, so copy
+	cp /var/lib/samba/private/krb5.conf /etc/krb5.conf
 fi
 # extend lookup to use winbind
 sed -i -e "s/\(passwd:.*\)/\1 winbind/" \
@@ -210,6 +211,17 @@ else
 	fix_etchosts
 	patch_resolv ${REMOTE_DC}
 fi
+
+cat <<EOF
+Ignore TSIG errors !
+According to google group post this happens with internal samba dns
+server and can be safely ignored (2015)
+
+/usr/sbin/samba_dnsupdate: ; TSIG error with server: tsig verify failure
+
+https://groups.google.com/g/linux.samba/c/LguyNFTdCPM
+EOF
+
 
 #if [ "$1" = 'samba' ]; then
 if [ "${SAMBA_PROVISION_TYPE}" != "SERVER" -o \ 
