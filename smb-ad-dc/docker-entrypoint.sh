@@ -43,13 +43,13 @@ perl -E 'say "=" x 100'
 echo -e "${YEL}PARAM1: $1"
 echo 
 echo -e "${YEL}SAMBA_PROVISION_TYPE:\t${NC}${SAMBA_PROVISION_TYPE}"
-echo -e "${YEL}REMOTE_DC:\t\t\t${NC}${REMOTE_DC}"
+echo -e "${YEL}REMOTE_DC:\t\t${NC}${REMOTE_DC}"
 echo -e "${YEL}SAMBA_AD_REALM:\t\t${NC}${SAMBA_AD_REALM}"
 echo -e "${YEL}SAMBA_DOMAIN:\t\t${NC}${SAMBA_DOMAIN}"
 echo -e "${YEL}SAMBA_AD_ADMIN_PASSWD:\t${NC}${SAMBA_AD_ADMIN_PASSWD}"
-echo -e "${YEL}SAMBA_DNS_BACKEND:\t\t${NC}${SAMBA_DNS_BACKEND}"
-echo -e "${YEL}SAMBA_DNS_FORWARDER:\t\t${NC}${SAMBA_DNS_FORWARDER}"
-echo -e "${YEL}SAMBA_NOCOMPLEXPWD:\t\t${NC}${SAMBA_NOCOMPLEXPWD}"
+echo -e "${YEL}SAMBA_DNS_BACKEND:\t${NC}${SAMBA_DNS_BACKEND}"
+echo -e "${YEL}SAMBA_DNS_FORWARDER:\t${NC}${SAMBA_DNS_FORWARDER}"
+echo -e "${YEL}SAMBA_NOCOMPLEXPWD:\t${NC}${SAMBA_NOCOMPLEXPWD}"
 echo -e "${YEL}SAMBA_HOSTNAME:\t\t${NC}${SAMBA_HOSTNAME}"
 echo -e "${YEL}SAMBA_HOSTIP:\t\t${NC}${SAMBA_HOSTIP}"
 
@@ -91,7 +91,7 @@ fi
 
 function fix_etchosts {
 	echo -e "rewriting hosts file inplace"
-	fhelp=`grep ${LOWERCASE_DOMAIN} /etc/host | wc -l`
+	fhelp=`grep ${LOWERCASE_DOMAIN} /etc/hosts | wc -l`
 	if [ "$fhelp" == "0" ] ; then
 	  (rc=$(sed -e "s/\(.*\)${SAMBA_HOSTNAME}/\1${SAMBA_HOSTNAME}\.${LOWERCASE_DOMAIN} ${SAMBA_HOSTNAME}/" /etc/hosts); \
        	  echo "$rc" > /etc/hosts)
@@ -211,11 +211,16 @@ else
 	patch_resolv ${REMOTE_DC}
 fi
 
-if [ "$1" = 'samba' ]; then
+#if [ "$1" = 'samba' ]; then
+if [ "${SAMBA_PROVISION_TYPE}" != "SERVER" -o \ 
+     "${SAMBA_PROVISION_TYPE}" != "2NDDC" ]; then
     exec samba -i < /dev/null
 fi
-if [ "$1" = 'samba-member' ]; then
+#if [ "$1" = 'samba-member' ]; then
+if [ "${SAMBA_PROVISION_TYPE}" != "MEMBER" ]; then 
     exec /usr/bin/supervisord -n -c /etc/supervisord.conf < /dev/null
 fi
+
+echo $RED Unknown Provisioning type: ${SAMBA_PROVISION_TYPE} detected
 
 exec "$@"
