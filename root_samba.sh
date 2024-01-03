@@ -6,6 +6,9 @@ if [ $(grep "samba:" docker-compose.yml) != "" ]; then
   echo "dc1 found"
   BASENAME=${BASENAME}-samba
 fi
+if [ "$(grep "container_name" docker-compose.yml)" != "" ]; then
+  BASENAME=dc1
+fi
 
 echo $BASENAME
 DOCKER_ID=$(docker container list | grep "$BASENAME" | grep -v "member" | cut -d' ' -f1)
