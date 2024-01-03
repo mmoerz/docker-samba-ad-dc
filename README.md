@@ -10,13 +10,6 @@ This was inspired by other older docker containers that either don't work or use
 
 The container *needs* a macvtap based network. You may try other network types, however you have been warned, it will most likely not work without problems.
 
-# Install
-## On Clearlinux
-### bundles
-```
-swupd bundle-add acl
-```
-
 ### Docker compose installation
 (shamelessly stolen from original documentation - look there for updates ...)
 
@@ -48,13 +41,16 @@ For in-depth information see the fine [Samba Wiki](https://wiki.samba.org/index.
 
 parameter | purpose
 --------- | --------
-``` SAMBA_DC_HOSTNAME=dc ``` | Hostname of the containerized domain controller. If you change this, you will need to change the hostname in the dockerfile as well.
-``` SAMBA_DC_HOSTIP= ``` | should be left alone (is a leftover from trying to make it work with host network)
-```SAMBA_DC_ADMIN_PASSWD=replacePassword``` | Yeah for real, please change this to something secure.
-```SAMBA_DC_REALM=my.domain``` | replace with your active directory domain name
-```SAMBA_DNS_BACKEND=SAMBA_INTERNAL``` | should be left alone
-```SAMBA_DNS_FORWARDER=192.168.1.254``` | Sets the dns server that dns queries are forwarded to.
-```SAMBA_NOCOMPLEXPWD=true``` | If true then sets the password complexity to off, expiry and password history is turned off as well, otherwise password complexity is left alone. 
+``` SAMBA_PROVISION_TYPE ``` | SERVER for an AD server, 2ndDC for a secondary AD server that joins an existing domain. MEMBER for joining the (file) server to an existing domain.
+``` REMOTE_DC ``` | must be set for 2ndDC and MEMBER provisioning
+``` SAMBA_AD_REALM=my.domain``` | replace with your active directory domain name
+``` SAMBA_DOMAIN ``` | domain name (must match AD Realm accordingly!)
+``` SAMBA_AD_ADMIN_PASSWD=replacePassword``` | Yeah for real, please change this to something secure.
+``` SAMBA_DNS_BACKEND=SAMBA_INTERNAL``` | should be left alone
+``` SAMBA_DNS_FORWARDER=192.168.1.254``` | Sets the dns server that dns queries are forwarded to.
+``` SAMBA_NOCOMPLEXPWD=true``` | If true then sets the password complexity to off, expiry and password history is turned off as well, otherwise password complexity is left alone. 
+``` SAMBA_HOSTNAME=dc ``` | Hostname of the containerized domain controller. If you change this, you will need to change the hostname in the dockerfile as well.
+``` SAMBA_HOSTIP= ``` | should be left alone (is a leftover from trying to make it work with host network)
 
 ## Volumes
 
@@ -84,8 +80,8 @@ add to .env file:
 
 parameter | purpose
 --------- | --------
-SAMBA_PROVISION_TYPE=JOIN | provisioning type: DC for standalone domain controller
-or JOIN for joining an existing domain
+SAMBA_PROVISION_TYPE=JOIN | provisioning type: SERVER for standalone domain controller
+or MEMBER for joining an existing domain
 
 
 ###
@@ -128,3 +124,10 @@ or simple use docker-compose
 
 There are other docker-compose files present that will most likely not work as expected.
 
+
+# Install
+## On Clearlinux
+### bundles
+```
+swupd bundle-add acl
+```
