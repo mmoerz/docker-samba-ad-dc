@@ -5,7 +5,7 @@ NC='\033[0m' #no color
 YEL='\033[1;33m'
 GR='\033[1;32m'
 
-ENVVARS="SAMBA_DOMAIN SAMBA_AD_REALM SAMBA_AD_ADMIN_PASSWD"
+#ENVVARS="SAMBA_DOMAIN SAMBA_AD_REALM SAMBA_AD_ADMIN_PASSWD"
 
 # as it seems, hostname is not a good idea to configure script based
 # use docker mechanism to do that
@@ -62,6 +62,7 @@ echo -e "${YEL}SAMBA_NOCOMPLEXPWD:\t${NC}${SAMBA_NOCOMPLEXPWD}"
 echo -e "${YEL}SAMBA_HOSTIP:\t\t${NC}${SAMBA_HOSTIP}"
 
 function patch_resolv {
+  echo -e "${RED}overwriting resolv.conf"
 cat > /etc/resolv.conf <<EOF
 nameserver $1
 search ${SAMBA_AD_REALM,,}
@@ -214,7 +215,7 @@ if [ ! -e /etc/samba/smb.conf ]; then
 	echo -e "${RED} /etc/samba/smb.conf was not created"
 fi
 
-# link kerberos config (so that it may be modified)
+# create kerberos config (so that it may be modified)
 if [ -f /var/lib/samba/private/krb5.conf ]; then
 	echo -e "replacing krb5.conf with samba version"
   mv /etc/krb5.conf /etc/krb5.conf.orig
