@@ -14,6 +14,7 @@ services:
     image: mmoerz/docker-samba-ad-dc:4.18.9
     hostname: dc1
     domainname: my.domain
+    container_name: dc1
     privileged: true
     volumes:
       - samba_dc1_etc:/etc/samba
