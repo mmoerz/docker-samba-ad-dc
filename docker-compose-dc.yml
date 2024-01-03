@@ -13,6 +13,7 @@ services:
     build: smb-ad-dc
     image: mmoerz/docker-samba-ad-dc:4.18.9
     hostname: dc1
+    domainname: my.domain
     privileged: true
     volumes:
       - samba_dc1_etc:/etc/samba
@@ -23,6 +24,8 @@ services:
     networks:
       samba-network:
         ipv4_address: 10.10.98.12
+          #extra_hosts:
+          #- "dc1.my.domain:10.10.98.12"
 
 networks:
   samba-network:

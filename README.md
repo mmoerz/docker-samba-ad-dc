@@ -12,21 +12,6 @@ To fullfill my own set of requirements, I wrote this from scratch.
 
 The container *needs* a macvtap based network. You may try other network types, however you have been warned, it will most likely not work without problems.
 
-### Docker compose installation
-(shamelessly stolen from original documentation - look there for updates ...)
-
-```
-DOCKER_CONFIG=${DOCKER_CONFIG:-$HOME/.docker}
-
-mkdir -p $DOCKER_CONFIG/cli-plugins
-
-curl -SL https://github.com/docker/compose/releases/download/v2.14.0/docker-compose-linux-x86_64 -o $DOCKER_CONFIG/cli-plugins/docker-compose
-
-chmod +x $DOCKER_CONFIG/cli-plugins/docker-compose
-
-docker compose version
-```
-
 ## Running
 
 Setup your own samba.env file with your choice of options by copying the example.
@@ -47,7 +32,7 @@ parameter | purpose
 ``` REMOTE_DC ``` | must be set for 2ndDC and MEMBER provisioning
 ``` SAMBA_AD_REALM=my.domain``` | replace with your active directory domain name
 ``` SAMBA_DOMAIN ``` | domain name (must match AD Realm accordingly!)
-``` SAMBA_AD_ADMIN_PASSWD=replacePassword``` | Yeah for real, please change this to something secure.
+``` SAMBA_AD_ADMIN_PASSWD=replacePasswd ``` | Yeah for real, please change this to something secure.
 ``` SAMBA_DNS_BACKEND=SAMBA_INTERNAL``` | should be left alone
 ``` SAMBA_DNS_FORWARDER=192.168.1.254``` | Sets the dns server that dns queries are forwarded to.
 ``` SAMBA_NOCOMPLEXPWD=true``` | If true then sets the password complexity to off, expiry and password history is turned off as well, otherwise password complexity is left alone. 
@@ -74,6 +59,16 @@ You can point those to the paths of your liking, e.g:
       - /srv/docker/samba/shares:/srv/shares:rw
 ```
 
+## Creating an AD DC server
+
+necessary changes to .env file:
+
+parameter | purpose
+--------- | --------
+SAMBA_PROVISION_TYPE=SERVER | SERVER for standalone domain controller 
+
+change hostname in docker-compose.yml, setting the hostname for the container and fixing the extra_hosts entry accordingly
+
 ## Joining a domain as a dc
 
 Be warned, this are my own notes and may or may not work!
@@ -82,8 +77,7 @@ add to .env file:
 
 parameter | purpose
 --------- | --------
-SAMBA_PROVISION_TYPE=JOIN | provisioning type: SERVER for standalone domain controller
-or MEMBER for joining an existing domain
+SAMBA_PROVISION_TYPE=2NDDC | provisioning type: SERVER for standalone domain controller or MEMBER for joining an existing domain
 
 
 ###
@@ -127,9 +121,24 @@ or simple use docker-compose
 There are other docker-compose files present that will most likely not work as expected.
 
 
-# Install
+# Install Notes
 ## On Clearlinux
 ### bundles
 ```
 swupd bundle-add acl
 ```
+### Docker compose installation
+(shamelessly stolen from original documentation - look there for updates ...)
+
+```
+DOCKER_CONFIG=${DOCKER_CONFIG:-$HOME/.docker}
+
+mkdir -p $DOCKER_CONFIG/cli-plugins
+
+curl -SL https://github.com/docker/compose/releases/download/v2.14.0/docker-compose-linux-x86_64 -o $DOCKER_CONFIG/cli-plugins/docker-compose
+
+chmod +x $DOCKER_CONFIG/cli-plugins/docker-compose
+
+docker compose version
+```
+

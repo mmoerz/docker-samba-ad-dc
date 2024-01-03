@@ -7,6 +7,11 @@ GR='\033[1;32m'
 
 ENVVARS="SAMBA_DOMAIN SAMBA_AD_REALM SAMBA_AD_ADMIN_PASSWD"
 
+# as it seems, hostname is not a good idea to configure script based
+# use docker mechanism to do that
+#
+HOSTNAME=$(hostname)
+#
 SAMBA_PROVISION_TYPE=${SAMBA_PROVISION_TYPE:-SERVER}
 SAMBA_PROVISION_TYPE=${SAMBA_PROVISION_TYPE^^}
 REMOTE_DC=${REMOTE_DC:-NONE}
@@ -18,7 +23,7 @@ SAMBA_AD_ADMIN_PASSWD=${SAMBA_AD_ADMIN_PASSWD:-youshouldchangethis}
 SAMBA_DNS_BACKEND=${SAMBA_DNS_BACKEND:-SAMBA_INTERNAL}
 SAMBA_DNS_FORWARDER=${SAMBA_DNS_FORWARDER:-NONE}
 SAMBA_NOCOMPLEXPWD=${SAMBA_NOCOMPLEXPWD:-false}
-SAMBA_HOSTNAME=${SAMBA_HOSTNAME:-noname}
+#SAMBA_HOSTNAME=${SAMBA_HOSTNAME:-noname}
 SAMBA_HOSTIP=${SAMBA_HOSTIP:-NONE}
 
 HOSTIP_OPTION=""
@@ -41,7 +46,10 @@ set -e
 
 perl -E 'say "=" x 100'
 echo -e "${YEL}PARAM1: $1"
-echo 
+echo
+echo -e "${GR}SYSTEM SETTINGS"
+echo -e "${YEL}HOSTNAME:\t${NC}$HOSTNAME"
+echo -e 
 echo -e "${YEL}SAMBA_PROVISION_TYPE:\t${NC}${SAMBA_PROVISION_TYPE}"
 echo -e "${YEL}REMOTE_DC:\t\t${NC}${REMOTE_DC}"
 echo -e "${YEL}SAMBA_AD_REALM:\t\t${NC}${SAMBA_AD_REALM}"
@@ -50,7 +58,7 @@ echo -e "${YEL}SAMBA_AD_ADMIN_PASSWD:\t${NC}${SAMBA_AD_ADMIN_PASSWD}"
 echo -e "${YEL}SAMBA_DNS_BACKEND:\t${NC}${SAMBA_DNS_BACKEND}"
 echo -e "${YEL}SAMBA_DNS_FORWARDER:\t${NC}${SAMBA_DNS_FORWARDER}"
 echo -e "${YEL}SAMBA_NOCOMPLEXPWD:\t${NC}${SAMBA_NOCOMPLEXPWD}"
-echo -e "${YEL}SAMBA_HOSTNAME:\t\t${NC}${SAMBA_HOSTNAME}"
+# maybe pick that up automatically as well?
 echo -e "${YEL}SAMBA_HOSTIP:\t\t${NC}${SAMBA_HOSTIP}"
 
 function patch_resolv {
@@ -93,13 +101,25 @@ function fix_etchosts {
 	echo -e "rewriting hosts file inplace"
 	fhelp=`grep ${LOWERCASE_DOMAIN} /etc/hosts | wc -l`
 	if [ "$fhelp" == "0" ] ; then
-	  (rc=$(sed -e "s/\(.*\)${SAMBA_HOSTNAME}/\1${SAMBA_HOSTNAME}\.${LOWERCASE_DOMAIN} ${SAMBA_HOSTNAME}/" /etc/hosts); \
+	  (rc=$(sed -e "s/\(.*\)${HOSTNAME}/\1${HOSTNAME}\.${LOWERCASE_DOMAIN} ${HOSTNAME}/" /etc/hosts); \
        	  echo "$rc" > /etc/hosts)
 	  [ "$?" == "0" ] && echo -e "${GR}rewrite successfull"
 	else
-		echo "${GR} already replaced"
+		echo -e "${GR} already replaced"
 	fi
 }
+
+function check_etchosts {
+  echo -ne "checking /etc/hosts entries: "
+	fhelp=`grep ${LOWERCASE_DOMAIN} /etc/hosts | wc -l`
+	if [ "$fhelp" == "0" ] ; then
+    echo -e "${RED}missing fqdn for server in hosts file"
+  else
+    echo -e "${GR} fqdn for server in hosts file"
+  fi
+}
+
+check_etchosts
 
 if [ ! -f /etc/samba/smb.conf ]; then
     if [ ${SAMBA_PROVISION_TYPE} == "SERVER" ] ; then
@@ -108,7 +128,7 @@ if [ ! -f /etc/samba/smb.conf ]; then
             --server-role=dc \
             --realm=${SAMBA_AD_REALM} \n \
             --dns-backend=${SAMBA_DNS_BACKEND} \
-            --host-name=${SAMBA_HOSTNAME} \
+            --host-name=${HOSTNAME} \
             --use-rfc2307 \
             ${HOSTIP_OPTION}"
         samba-tool domain provision --domain="${SAMBA_DOMAIN}" \
@@ -116,7 +136,7 @@ if [ ! -f /etc/samba/smb.conf ]; then
             --server-role=dc \
             --realm="${SAMBA_AD_REALM}" \
             --dns-backend="${SAMBA_DNS_BACKEND}" \
-            --host-name="${SAMBA_HOSTNAME}" \
+            --host-name="${HOSTNAME}" \
             --use-rfc2307 \
             ${HOSTIP_OPTION}
 #            --option="allow dns updates = disabled"
@@ -152,39 +172,40 @@ EOF
 #send "\$pwd"
 #EOF
 #	 /usr/bin/expect /root/kinit_test.expect
-	 echo "${SAMBA_AD_ADMIN_PASSWD}" | kinit administrator
-	 klist
-	 RC=$?
-	 # now join the domain
-    	 if [ "${SAMBA_PROVISION_TYPE}" == "2NDDC" ]; then
-	     if [ $RC -eq 0 ]; then
-             	echo -e "${GR} ******************************************"
-             	echo -e "${GR} JOINING DOMAIN ${SAMBA_AD_REALM} as DC now" 
-             	echo -e "${GR} ******************************************"
-	        samba-tool domain join ${SAMBA_AD_REALM} DC -k yes
-             fi
-	 fi
-    	 if [ "${SAMBA_PROVISION_TYPE}" == "MEMBER" ]; then
-	     if [ $RC -eq 0 ]; then
-             	echo -e "${GR} **********************************************"
-             	echo -e "${GR} JOINING DOMAIN ${SAMBA_AD_REALM} as Member now" 
-             	echo -e "${GR} **********************************************"
-		create_fileserver_smbconf 
+      echo "${SAMBA_AD_ADMIN_PASSWD}" | kinit administrator
+	    klist
+      RC=$?
+      # now join the domain
+      if [ "${SAMBA_PROVISION_TYPE}" == "2NDDC" ]; then
+	      if [ $RC -eq 0 ]; then
+          echo -e "${GR} ******************************************"
+          echo -e "${GR} JOINING DOMAIN ${SAMBA_AD_REALM} as DC now" 
+          echo -e "${GR} ******************************************"
+          samba-tool domain join ${SAMBA_AD_REALM} DC -k yes
+        fi
+	    fi
+      if [ "${SAMBA_PROVISION_TYPE}" == "MEMBER" ]; then
+	      if [ $RC -eq 0 ]; then
+         	echo -e "${GR} **********************************************"
+         	echo -e "${GR} JOINING DOMAIN ${SAMBA_AD_REALM} as Member now" 
+         	echo -e "${GR} **********************************************"
+  		    create_fileserver_smbconf 
 
-		# bugfix for samba - THX!!
-		ldbadd -H /var/lib/samba/private/secrets.ldb </dev/null
-		ldbadd -H /var/lib/samba/private/sam.ldb </dev/null
+          # bugfix for samba - THX!!
+          ldbadd -H /var/lib/samba/private/secrets.ldb </dev/null
+          ldbadd -H /var/lib/samba/private/sam.ldb </dev/null
 
-		fix_etchosts
-	        samba-tool domain join ${SAMBA_AD_REALM} MEMBER -k yes
-             fi
-	 fi
+          check_etchosts
+  	      fix_etchosts
+          samba-tool domain join ${SAMBA_AD_REALM} MEMBER -k yes
+        fi
+      fi
     fi
 
     if [ "${SAMBA_DNS_FORWARDER}" != "NONE" ]; then
-        sed -i "/\[global\]/a \
-            \\\tdns forwarder = ${SAMBA_DNS_FORWARDER}\
-            " /etc/samba/smb.conf
+      sed -i "/\[global\]/a \
+             \\\tdns forwarder = ${SAMBA_DNS_FORWARDER}\
+             " /etc/samba/smb.conf
     fi
 else 
 	echo -e "${GR} /etc/samba/smb.conf exists, no provisioning"
@@ -208,6 +229,7 @@ sed -i -e "s/\(passwd:.*\)/\1 winbind/" \
 if [ "${SAMBA_PROVISION_TYPE}" != "MEMBER" ]; then
 	patch_resolv 127.0.0.1
 else
+  check_etchosts
 	fix_etchosts
 	patch_resolv ${REMOTE_DC}
 fi
@@ -224,15 +246,17 @@ EOF
 
 
 #if [ "$1" = 'samba' ]; then
-if [ "${SAMBA_PROVISION_TYPE}" != "SERVER" -o \ 
-     "${SAMBA_PROVISION_TYPE}" != "2NDDC" ]; then
-    exec samba -i < /dev/null
-fi
 #if [ "$1" = 'samba-member' ]; then
-if [ "${SAMBA_PROVISION_TYPE}" != "MEMBER" ]; then 
+case "${SAMBA_PROVISION_TYPE}" in
+  "SERVER" | "2NDDC")
+    exec samba -i < /dev/null
+    ;;
+  "MEMBER")
     exec /usr/bin/supervisord -n -c /etc/supervisord.conf < /dev/null
-fi
-
-echo $RED Unknown Provisioning type: ${SAMBA_PROVISION_TYPE} detected
+    ;;
+  *)
+    echo -e ${RED} Unknown Provisioning type: ${SAMBA_PROVISION_TYPE} detected
+    ;;
+esac
 
 exec "$@"
