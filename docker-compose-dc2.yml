@@ -12,7 +12,7 @@ services:
   sambadc2:
     build: smb-ad-dc
     image: mmoerz/docker-samba-ad-dc:4.18.9
-    hostname: dc1
+    hostname: dc2
     privileged: true
     volumes:
       - samba_dc2_etc:/etc/samba
