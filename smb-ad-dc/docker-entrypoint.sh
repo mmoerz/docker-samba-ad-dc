@@ -27,26 +27,29 @@ if [ "${SAMBA_HOSTIP}" != "NONE" ]; then
 fi
 
 set +e
+# alpine 3.17 25979b7571c1cf2e79ae9a0f9e676c8a
 md5sum -c <<EOF
-25979b7571c1cf2e79ae9a0f9e676c8a  /etc/samba/smb.conf
+078fdd0eb6e940e070ba7d1b6bbc2d45  /etc/samba/smb.conf
 EOF
 if [ $? -eq 0 ]; then
 	echo -e "${GR}default alpine smb.conf found, deleting"
 	rm /etc/samba/smb.conf
+else
+  md5sum /etc/samba/smb.conf
 fi
 set -e
 
 perl -E 'say "=" x 100'
 echo -e "${YEL}PARAM1: $1"
 echo 
-echo -e "${YEL}SAMBA_PROVISION_TYPE:\t\t${NC}${SAMBA_PROVISION_TYPE}"
-echo -e "${YEL}REMOTE_DC:\t\t${NC}${REMOTE_DC}"
+echo -e "${YEL}SAMBA_PROVISION_TYPE:\t${NC}${SAMBA_PROVISION_TYPE}"
+echo -e "${YEL}REMOTE_DC:\t\t\t${NC}${REMOTE_DC}"
 echo -e "${YEL}SAMBA_AD_REALM:\t\t${NC}${SAMBA_AD_REALM}"
-echo -e "${YEL}SAMBA_DOMAIN:\t${NC}${SAMBA_DOMAIN}"
+echo -e "${YEL}SAMBA_DOMAIN:\t\t${NC}${SAMBA_DOMAIN}"
 echo -e "${YEL}SAMBA_AD_ADMIN_PASSWD:\t${NC}${SAMBA_AD_ADMIN_PASSWD}"
-echo -e "${YEL}SAMBA_DNS_BACKEND:\t${NC}${SAMBA_DNS_BACKEND}"
-echo -e "${YEL}SAMBA_DNS_FORWARDER:\t${NC}${SAMBA_DNS_FORWARDER}"
-echo -e "${YEL}SAMBA_NOCOMPLEXPWD:\t${NC}${SAMBA_NOCOMPLEXPWD}"
+echo -e "${YEL}SAMBA_DNS_BACKEND:\t\t${NC}${SAMBA_DNS_BACKEND}"
+echo -e "${YEL}SAMBA_DNS_FORWARDER:\t\t${NC}${SAMBA_DNS_FORWARDER}"
+echo -e "${YEL}SAMBA_NOCOMPLEXPWD:\t\t${NC}${SAMBA_NOCOMPLEXPWD}"
 echo -e "${YEL}SAMBA_HOSTNAME:\t\t${NC}${SAMBA_HOSTNAME}"
 echo -e "${YEL}SAMBA_HOSTIP:\t\t${NC}${SAMBA_HOSTIP}"
 
