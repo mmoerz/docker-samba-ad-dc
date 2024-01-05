@@ -44,7 +44,7 @@ else
 fi
 set -e
 
-perl -E 'say "=" x 100'
+perl -E 'say "=" x 80'
 echo -e "${YEL}PARAM1: $1"
 echo
 echo -e "${GR}SYSTEM SETTINGS"
@@ -61,12 +61,27 @@ echo -e "${YEL}SAMBA_NOCOMPLEXPWD:\t${NC}${SAMBA_NOCOMPLEXPWD}"
 # maybe pick that up automatically as well?
 echo -e "${YEL}SAMBA_HOSTIP:\t\t${NC}${SAMBA_HOSTIP}"
 
+##### BEGIN of function definitions
+
 function patch_resolv {
+  echo -e "${RED}==== old resolv.conf"
+cat /etc/resolv.conf
+  echo -e "${RED}==== END old resolv.conf"
   echo -e "${RED}overwriting resolv.conf"
+  echo -w "${YEL}setting nameserver $1"
 cat > /etc/resolv.conf <<EOF
 nameserver $1
 search ${SAMBA_AD_REALM,,}
 options ndots:0
+EOF
+}
+
+function create_default_krb5_conf {
+  cat > /etc/krb5.conf <<EOF
+[libdefaults]
+    dns_lookup_realm = false
+    dns_lookup_kdc = true
+    default_realm = ${SAMBA_AD_REALM}
 EOF
 }
 
@@ -120,6 +135,11 @@ function check_etchosts {
   fi
 }
 
+##### END of function defs 
+
+##### script starts here
+
+
 check_etchosts
 
 if [ ! -f /etc/samba/smb.conf ]; then
@@ -150,16 +170,13 @@ if [ ! -f /etc/samba/smb.conf ]; then
             samba-tool domain passwordsettings set --max-pwd-age=0
         fi
     else
-        echo -e "Provisioning Member"
-	 # time should be checked prior!!!
-         # join preparations
-	 patch_resolv $REMOTE_DC
-	 cat > /etc/krb5.conf <<EOF
-[libdefaults]
-    dns_lookup_realm = false
-    dns_lookup_kdc = true
-    default_realm = ${SAMBA_AD_REALM}
-EOF
+      echo -e "Provisioning Member"
+      echo -e "hopefully the time is set correctly"
+      # time should be checked prior!!!
+      # join preparations
+      patch_resolv $REMOTE_DC
+      create_default_krb5_conf
+        
          # test if dns and kerberos connection work
          #apt-get install expect
 	 #cat > /root/kinit_test.expect <<EOF
@@ -232,6 +249,7 @@ if [ "${SAMBA_PROVISION_TYPE}" != "MEMBER" ]; then
 else
   check_etchosts
 	fix_etchosts
+  # maybe this is a problem on a 2nd dc
 	patch_resolv ${REMOTE_DC}
 fi
 
