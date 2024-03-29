@@ -3,22 +3,38 @@
 [![Project Status: Active](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 
 alpine based docker container for samba active directory server
-(ubuntu was nice as long as it worked. After it got hard to setup, I switched to alpine.)
+(ubuntu was nice as long as it worked. After it got hard to setup, 
+ I switched to alpine.)
 
-This was inspired by other older docker containers that either don't work oruse completely outdated versions of samba. 
+This was inspired by other older docker containers that either don't work or
+use completely outdated versions of samba. 
 To fullfill my own set of requirements, I wrote this from scratch.
 
 # Limitations
 
-The container *needs* a macvtap based network. You may try other network types, however you have been warned, it will most likely not work without problems.
+The container *needs* a macvtap based network. You may try other network 
+types, however you have been warned, it will most likely not work without problems.
 
-## Running
+## Preflight
 
-Setup your own samba.env file with your choice of options by copying the example.
+Setup your own samba.env file with your choice of options by copying the 
+example and editing the values.
 
 ``cp samba.env.example samba.env``
 
-Then start the container. It will immediatly provision the domain and start samba afterwards.
+Setup volumes by switching to the directory where you want to place the
+volume directories for the samba containers. Then execute ``create-volume.sh``.
+
+Setup network by editing the file create-network.sh and maybe replacing ``br0``
+with your choice of device to bind the network to.
+
+## Starting the addc
+
+Start the container of the activedomain controller. 
+
+``docker-compose start samba``
+
+It will immediatly provision the domain and start samba afterwards.
 
 ### Environment Variables explained
 
@@ -38,6 +54,9 @@ parameter | purpose
 ``` SAMBA_NOCOMPLEXPWD=true``` | If true then sets the password complexity to off, expiry and password history is turned off as well, otherwise password complexity is left alone. 
 ``` SAMBA_HOSTNAME=dc ``` | Hostname of the containerized domain controller. If you change this, you will need to change the hostname in the dockerfile as well.
 ``` SAMBA_HOSTIP= ``` | should be left alone (is a leftover from trying to make it work with host network)
+`` SAMBA_DEBUG | default is 0, if not zero entrypoint script will give a more verbose output
+``GATEWAY`` | as the name suggest the gateway of the samba domain network
+``SUBNET`` | the network in xxx.xxx.xxx.xxx/yy syntax
 
 ## Volumes
 
@@ -80,10 +99,14 @@ parameter | purpose
 SAMBA_PROVISION_TYPE=2NDDC | provisioning type: SERVER for standalone domain controller or MEMBER for joining an existing domain
 
 
-###
+### additional ressources and information
+#### /root/tools
+is a tool directory in the container image. it contains several helper scripts.
+
+TODO: describe the different script's purposes
+
+#### links
 * hot backup idmap
-
-
 * rsync sysvol
 [SysVol replication](https://wiki.samba.org/index.php/SysVol_replication_(DFS-R))
 
