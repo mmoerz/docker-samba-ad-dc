@@ -25,6 +25,7 @@ SAMBA_DNS_FORWARDER=${SAMBA_DNS_FORWARDER:-NONE}
 SAMBA_NOCOMPLEXPWD=${SAMBA_NOCOMPLEXPWD:-false}
 #SAMBA_HOSTNAME=${SAMBA_HOSTNAME:-noname}
 SAMBA_HOSTIP=${SAMBA_HOSTIP:-NONE}
+SAMBA_DEBUG=${SAMBA_DEBUG:0}
 
 HOSTIP_OPTION=""
 if [ "${SAMBA_HOSTIP}" != "NONE" ]; then
@@ -39,8 +40,9 @@ EOF
 if [ $? -eq 0 ]; then
 	echo -e "${GR}default alpine smb.conf found, deleting"
 	rm /etc/samba/smb.conf
-else
-  md5sum /etc/samba/smb.conf
+elif [ $SAMBA_DEBUG -gt 0 ]; then
+  	echo -e "${YEL}new smb.conf detected"
+	md5sum /etc/samba/smb.conf
 fi
 set -e
 
@@ -191,30 +193,31 @@ if [ ! -f /etc/samba/smb.conf ]; then
 #EOF
 #	 /usr/bin/expect /root/kinit_test.expect
       echo "${SAMBA_AD_ADMIN_PASSWD}" | kinit administrator
-	    klist
+      klist
       RC=$?
       # now join the domain
       if [ "${SAMBA_PROVISION_TYPE}" == "2NDDC" ]; then
-	      if [ $RC -eq 0 ]; then
+        if [ $RC -eq 0 ]; then
           echo -e "${GR} ******************************************"
           echo -e "${GR} JOINING DOMAIN ${SAMBA_AD_REALM} as DC now" 
           echo -e "${GR} ******************************************"
           samba-tool domain join ${SAMBA_AD_REALM} DC -k yes
         fi
-	    fi
+      fi
       if [ "${SAMBA_PROVISION_TYPE}" == "MEMBER" ]; then
-	      if [ $RC -eq 0 ]; then
-         	echo -e "${GR} **********************************************"
-         	echo -e "${GR} JOINING DOMAIN ${SAMBA_AD_REALM} as Member now" 
-         	echo -e "${GR} **********************************************"
-  		    create_fileserver_smbconf 
+        if [ $RC -eq 0 ]; then
+          echo -e "${GR} **********************************************"
+          echo -e "${GR} JOINING DOMAIN ${SAMBA_AD_REALM} as Member now" 
+          echo -e "${GR} **********************************************"
+  	  # hmm that is the other difference
+	  create_fileserver_smbconf 
 
           # bugfix for samba - THX!!
           ldbadd -H /var/lib/samba/private/secrets.ldb </dev/null
           ldbadd -H /var/lib/samba/private/sam.ldb </dev/null
 
           check_etchosts
-  	      fix_etchosts
+          fix_etchosts
           samba-tool domain join ${SAMBA_AD_REALM} MEMBER -k yes
         fi
       fi
