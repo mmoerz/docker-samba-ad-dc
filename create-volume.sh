@@ -4,6 +4,9 @@ usage() {
 cat <<EOF
 USAGE: $0 [addc|member] name 
 	creates directories and registers them for docker use
+
+  addc    directory structure for an AD Server
+  member  directory for a simple file server
 EOF
 }
 
