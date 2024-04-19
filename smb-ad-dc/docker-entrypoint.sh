@@ -38,17 +38,19 @@ md5sum -c <<EOF
 078fdd0eb6e940e070ba7d1b6bbc2d45  /etc/samba/smb.conf
 EOF
 if [ $? -eq 0 ]; then
-	echo -e "${GR}default alpine smb.conf found, deleting"
-	rm /etc/samba/smb.conf
+  echo -e "${GR}default alpine smb.conf found, deleting"
+  rm /etc/samba/smb.conf
 elif [ $SAMBA_DEBUG -gt 0 ]; then
-  	echo -e "${YEL}new smb.conf detected"
-	md5sum /etc/samba/smb.conf
+ 	echo -e "${YEL}user generated smb.conf detected, keeping it."
+  # if debug enabled, output md5sum (for replacing new default md5sum)
+  [ ${SAMBA_DEBUG} -gt 0 ] && md5sum /etc/samba/smb.conf
 fi
 set -e
 
 perl -E 'say "=" x 80'
 echo -e "${YEL}PARAM1: $1"
 echo
+[${SAMBA_DEBUG} -gt 0] && echo -e "${YEL}SAMBA_DEBUG:\t${SAMBA_DEBUG}"
 echo -e "${GR}SYSTEM SETTINGS"
 echo -e "${YEL}HOSTNAME:\t${NC}$HOSTNAME"
 echo -e 
@@ -127,6 +129,7 @@ function fix_etchosts {
 	fi
 }
 
+# only checks hosts file for fqdn
 function check_etchosts {
   echo -ne "checking /etc/hosts entries: "
 	fhelp=`grep ${LOWERCASE_DOMAIN} /etc/hosts | wc -l`
@@ -141,7 +144,7 @@ function check_etchosts {
 
 ##### script starts here
 
-
+# check hosts file for fqdn
 check_etchosts
 
 if [ ! -f /etc/samba/smb.conf ]; then
@@ -179,9 +182,9 @@ if [ ! -f /etc/samba/smb.conf ]; then
       patch_resolv $REMOTE_DC
       create_default_krb5_conf
         
-         # test if dns and kerberos connection work
-         #apt-get install expect
-	 #cat > /root/kinit_test.expect <<EOF
+      # test if dns and kerberos connection work
+      #apt-get install expect
+	    #cat > /root/kinit_test.expect <<EOF
 ##!/bin/expect
 #
 #set pwd "${SAMBA_AD_ADMIN_PASSWD}"
@@ -192,7 +195,7 @@ if [ ! -f /etc/samba/smb.conf ]; then
 #send "\$pwd"
 #EOF
 #	 /usr/bin/expect /root/kinit_test.expect
-      echo "${SAMBA_AD_ADMIN_PASSWD}" | kinit administrator
+      echo "${SAMBA_AD_ADMIN_PASSWD}" | kinit administrator -c KRB5CCNAME
       klist
       RC=$?
       # now join the domain
@@ -201,7 +204,8 @@ if [ ! -f /etc/samba/smb.conf ]; then
           echo -e "${GR} ******************************************"
           echo -e "${GR} JOINING DOMAIN ${SAMBA_AD_REALM} as DC now" 
           echo -e "${GR} ******************************************"
-          samba-tool domain join ${SAMBA_AD_REALM} DC -k yes
+          samba-tool domain join ${SAMBA_AD_REALM} DC --use-kerberos \
+            --use-krb5-ccache=KRB5CCNAME
         fi
       fi
       if [ "${SAMBA_PROVISION_TYPE}" == "MEMBER" ]; then
@@ -209,8 +213,8 @@ if [ ! -f /etc/samba/smb.conf ]; then
           echo -e "${GR} **********************************************"
           echo -e "${GR} JOINING DOMAIN ${SAMBA_AD_REALM} as Member now" 
           echo -e "${GR} **********************************************"
-  	  # hmm that is the other difference
-	  create_fileserver_smbconf 
+          # hmm that is the other difference
+          create_fileserver_smbconf 
 
           # bugfix for samba - THX!!
           ldbadd -H /var/lib/samba/private/secrets.ldb </dev/null
