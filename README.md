@@ -2,7 +2,8 @@
 
 [![Project Status: Active](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 
-alpine based docker container for samba active directory server
+alpine based docker container for samba active directory server.
+
 (ubuntu was nice as long as it worked. After it got hard to setup, 
  I switched to alpine.)
 
@@ -145,6 +146,10 @@ There are other docker-compose files present that will most likely not work as e
 
 
 # Install Notes
+
+[Arch](InstallArch.md)
+[Clearlinux](InstallClrl.md)
+
 ## On Clearlinux
 ### bundles
 ```

@@ -7,7 +7,7 @@ if [ $(grep "samba:" docker-compose.yml) != "" ]; then
   BASENAME=${BASENAME}-samba
 fi
 if [ "$(grep "container_name" docker-compose.yml)" != "" ]; then
-  BASENAME=dc1
+  BASENAME=samba-1
 fi
 
 echo $BASENAME

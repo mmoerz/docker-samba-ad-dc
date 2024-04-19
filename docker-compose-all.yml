@@ -29,8 +29,18 @@ services:
       - samba_dc1_etc:/etc/samba
       - samba_dc1_varlib:/var/lib/samba
       - samba_dc1_varlog:/var/log/samba
-    env_file:
-      - ./samba.env
+    environment:
+      - SAMBA_PROVISION_TYPE=SERVER
+      - SAMBA_AD_REALM=my.domain
+      - SAMBA_AD_ADMIN_PASSWD=replaceThis
+      - REMOTE_DC=
+      - SAMBA_HOSTNAME=dc1
+      - SAMBA_HOSTIP=x.x.x.x
+      - SAMBA_DNS_BACKEND=SAMBA_INTERNAL
+      - SAMBA_DNS_FORWARDER=x.x.x.x
+      - SAMBA_NOCOMPLEXPWD=true
+      - SUBNET=x.x.x.x/24
+      - GATEWAY=x.x.x.x
     networks:
       samba-network:
         ipv4_address: 10.0.2.200

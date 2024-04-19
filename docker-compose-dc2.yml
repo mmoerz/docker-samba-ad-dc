@@ -23,6 +23,8 @@ services:
     networks:
       samba-network:
         ipv4_address: 10.10.98.14
+    extra_hosts:
+      - "dc2.my.domain:10.10.98.14"
 
 networks:
   samba-network:
