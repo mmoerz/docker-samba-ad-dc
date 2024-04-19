@@ -8,6 +8,13 @@ volumes:
   samba_dc1_varlog:
     external: true
 
+  samba_dc2_etc:
+    external: true
+  samba_dc2_varlib:
+    external: true
+  samba_dc2_varlog:
+    external: true
+
   samba_fs1_etc:
     external: true
   samba_fs1_varlib:
@@ -29,18 +36,20 @@ services:
       - samba_dc1_etc:/etc/samba
       - samba_dc1_varlib:/var/lib/samba
       - samba_dc1_varlog:/var/log/samba
-    environment:
-      - SAMBA_PROVISION_TYPE=SERVER
-      - SAMBA_AD_REALM=my.domain
-      - SAMBA_AD_ADMIN_PASSWD=replaceThis
-      - REMOTE_DC=
-      - SAMBA_HOSTNAME=dc1
-      - SAMBA_HOSTIP=x.x.x.x
-      - SAMBA_DNS_BACKEND=SAMBA_INTERNAL
-      - SAMBA_DNS_FORWARDER=x.x.x.x
-      - SAMBA_NOCOMPLEXPWD=true
-      - SUBNET=x.x.x.x/24
-      - GATEWAY=x.x.x.x
+    env_file:
+      - ./samba.env
+      #    environment:
+      #  - SAMBA_PROVISION_TYPE=SERVER
+      #  - SAMBA_AD_REALM=my.domain
+      #  - SAMBA_AD_ADMIN_PASSWD=replaceThis
+      #  - REMOTE_DC=
+      #  - SAMBA_HOSTNAME=dc1
+      #  - SAMBA_HOSTIP=x.x.x.x
+      #  - SAMBA_DNS_BACKEND=SAMBA_INTERNAL
+      #  - SAMBA_DNS_FORWARDER=x.x.x.x
+      #  - SAMBA_NOCOMPLEXPWD=true
+      #  - SUBNET=x.x.x.x/24
+      #  - GATEWAY=x.x.x.x
     networks:
       samba-network:
         ipv4_address: 10.0.2.200
@@ -56,12 +65,47 @@ services:
       - samba_fs1_varlog:/var/log/samba
       - samba_fs1_supervisord:/var/log/supervisord
       - samba_fs1_shares:/shares
-    env_file:
-      - ./samba-member.env
+      #env_file:
+      #- ./samba-member.env
+    environment:
+      - SAMBA_PROVISION_TYPE=JOIN
+      - REMOTE_DC=x.x.x.x
+      - SAMBA_HOSTNAME=fs1
+      - SAMBA_HOSTIP=x.x.x.x
+      - SAMBA_DNS_BACKEND=SAMBA_INTERNAL
+      - SAMBA_DNS_FORWARDER=x.x.x.x
+      - SAMBA_NOCOMPLEXPWD=true
+      - SUBNET=x.x.x.x/24
+      - GATEWAY=x.x.x.x
     networks:
       samba-network:
         ipv4_address: 10.0.2.201
 
+  samba-dc2:
+    image: mmoerz/docker-samba-ad-dc:4.18.9
+    hostname: dc2
+    privileged: true
+    volumes:
+      - samba_dc2_etc:/etc/samba
+      - samba_dc2_varlib:/var/lib/samba
+      - samba_dc2_varlog:/var/log/samba
+      #env_file:
+      #- ./samba-member.env
+    environment:
+      - SAMBA_PROVISION_TYPE=SERVER
+      - SAMBA_AD_REALM=my.domain
+      - SAMBA_AD_ADMIN_PASSWD=replaceThis
+      - REMOTE_DC=
+      - SAMBA_HOSTNAME=dc1
+      - SAMBA_HOSTIP=x.x.x.x
+      - SAMBA_DNS_BACKEND=SAMBA_INTERNAL
+      - SAMBA_DNS_FORWARDER=x.x.x.x
+      - SAMBA_NOCOMPLEXPWD=true
+      - SUBNET=x.x.x.x/24
+      - GATEWAY=x.x.x.x
+    networks:
+      samba-network:
+        ipv4_address: 10.0.2.200
 
 networks:
   samba-network:
