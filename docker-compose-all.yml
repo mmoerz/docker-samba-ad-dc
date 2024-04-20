@@ -31,6 +31,7 @@ services:
     build: smb-ad-dc
     image: mmoerz/docker-samba-ad-dc:4.18.9
     hostname: dc1
+    dns: 127.0.0.1
     privileged: true
     volumes:
       - samba_dc1_etc:/etc/samba
@@ -48,6 +49,7 @@ services:
       #  - SAMBA_DNS_BACKEND=SAMBA_INTERNAL
       #  - SAMBA_DNS_FORWARDER=x.x.x.x
       #  - SAMBA_NOCOMPLEXPWD=true
+      #  - SAMBA_RESOLVCONF=READONLY
       #  - SUBNET=x.x.x.x/24
       #  - GATEWAY=x.x.x.x
     networks:
@@ -101,6 +103,7 @@ services:
       - SAMBA_DNS_BACKEND=SAMBA_INTERNAL
       - SAMBA_DNS_FORWARDER=x.x.x.x
       - SAMBA_NOCOMPLEXPWD=true
+      - SAMBA_RESOLVCONF=READONLY
       - SUBNET=x.x.x.x/24
       - GATEWAY=x.x.x.x
     networks:

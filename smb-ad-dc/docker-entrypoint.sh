@@ -26,6 +26,8 @@ SAMBA_NOCOMPLEXPWD=${SAMBA_NOCOMPLEXPWD:-false}
 #SAMBA_HOSTNAME=${SAMBA_HOSTNAME:-noname}
 SAMBA_HOSTIP=${SAMBA_HOSTIP:-NONE}
 SAMBA_DEBUG=${SAMBA_DEBUG:0}
+SAMBA_DEBUG=$(("${SAMBA_DEBUG}"))
+SAMBA_RESOLVCONF=${SAMBA_RESOLVCONF:-READONLY}
 
 HOSTIP_OPTION=""
 if [ "${SAMBA_HOSTIP}" != "NONE" ]; then
@@ -34,23 +36,32 @@ fi
 
 set +e
 # alpine 3.17 25979b7571c1cf2e79ae9a0f9e676c8a
+#md5sum -c <<EOF
+#078fdd0eb6e940e070ba7d1b6bbc2d45  /etc/samba/smb.conf
+#EOF
+# alpine 3.19 
 md5sum -c <<EOF
 078fdd0eb6e940e070ba7d1b6bbc2d45  /etc/samba/smb.conf
 EOF
+
 if [ $? -eq 0 ]; then
   echo -e "${GR}default alpine smb.conf found, deleting"
   rm /etc/samba/smb.conf
-elif [ $SAMBA_DEBUG -gt 0 ]; then
- 	echo -e "${YEL}user generated smb.conf detected, keeping it."
-  # if debug enabled, output md5sum (for replacing new default md5sum)
-  [ ${SAMBA_DEBUG} -gt 0 ] && md5sum /etc/samba/smb.conf
+elif [ $SAMBA_DEBUG ]; then
+  if [ -f /etc/samba/smb.conf ] ; then
+ 	  echo -e "${YEL}user generated smb.conf detected, keeping it."
+    # if debug enabled, output md5sum (for replacing new default md5sum)
+    md5sum /etc/samba/smb.conf
+  else
+ 	  echo -e "${YEL}smb.conf not found."
+  fi
 fi
 set -e
 
 perl -E 'say "=" x 80'
 echo -e "${YEL}PARAM1: $1"
 echo
-[${SAMBA_DEBUG} -gt 0] && echo -e "${YEL}SAMBA_DEBUG:\t${SAMBA_DEBUG}"
+[ ${SAMBA_DEBUG}] && echo -e "${YEL}SAMBA_DEBUG:\t${SAMBA_DEBUG}"
 echo -e "${GR}SYSTEM SETTINGS"
 echo -e "${YEL}HOSTNAME:\t${NC}$HOSTNAME"
 echo -e 
@@ -64,6 +75,7 @@ echo -e "${YEL}SAMBA_DNS_FORWARDER:\t${NC}${SAMBA_DNS_FORWARDER}"
 echo -e "${YEL}SAMBA_NOCOMPLEXPWD:\t${NC}${SAMBA_NOCOMPLEXPWD}"
 # maybe pick that up automatically as well?
 echo -e "${YEL}SAMBA_HOSTIP:\t\t${NC}${SAMBA_HOSTIP}"
+echo -e "${YEL}SAMBA_RESOLVCONF:\t\t${NC}${SAMBA_RESOLVCONF}"
 
 ##### BEGIN of function definitions
 
@@ -71,8 +83,18 @@ function patch_resolv {
   echo -e "${RED}==== old resolv.conf"
 cat /etc/resolv.conf
   echo -e "${RED}==== END old resolv.conf"
+
+  if [ "X$1" == "XNONE" ] ; then
+    echo -e "${GR}ignoring NONE"
+    return
+  fi
+  if [ "X${SAMBA_RESOLVCONF}" == "XREADONLY" ] ; then
+    echo -e "${GR}/etc/resolv.conf is provided by docker"
+    return
+  fi
+
   echo -e "${RED}overwriting resolv.conf"
-  echo -w "${YEL}setting nameserver $1"
+  echo -e "${YEL}setting nameserver $1"
 cat > /etc/resolv.conf <<EOF
 nameserver $1
 search ${SAMBA_AD_REALM,,}
@@ -138,6 +160,7 @@ function check_etchosts {
   else
     echo -e "${GR} fqdn for server in hosts file"
   fi
+  [ ${SAMBA_DEBUG} ] && grep ${LOWERCASE_DOMAIN} /etc/hosts
 }
 
 ##### END of function defs 
