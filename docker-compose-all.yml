@@ -31,7 +31,7 @@ services:
     build: smb-ad-dc
     image: mmoerz/docker-samba-ad-dc:4.18.9
     hostname: dc1
-    dns: 127.0.0.1
+    domainname: my.domain
     privileged: true
     volumes:
       - samba_dc1_etc:/etc/samba
@@ -54,34 +54,36 @@ services:
       #  - GATEWAY=x.x.x.x
     networks:
       samba-network:
-        ipv4_address: 10.0.2.200
+        ipv4_address: 10.10.98.12
 
   samba-member:
-    command: samba-member
+    #command: samba-member
     image: mmoerz/docker-samba-ad-dc:4.18.9
     hostname: fs1
+    domainname: my.domain
     privileged: true
+    dns: 10.10.98.12
     volumes:
       - samba_fs1_etc:/etc/samba
       - samba_fs1_varlib:/var/lib/samba
       - samba_fs1_varlog:/var/log/samba
       - samba_fs1_supervisord:/var/log/supervisord
       - samba_fs1_shares:/shares
-      #env_file:
-      #- ./samba-member.env
-    environment:
-      - SAMBA_PROVISION_TYPE=JOIN
-      - REMOTE_DC=x.x.x.x
-      - SAMBA_HOSTNAME=fs1
-      - SAMBA_HOSTIP=x.x.x.x
-      - SAMBA_DNS_BACKEND=SAMBA_INTERNAL
-      - SAMBA_DNS_FORWARDER=x.x.x.x
-      - SAMBA_NOCOMPLEXPWD=true
-      - SUBNET=x.x.x.x/24
-      - GATEWAY=x.x.x.x
+    env_file:
+      - ./samba-member.env
+      #environment:
+      #  - SAMBA_PROVISION_TYPE=JOIN
+      #  - REMOTE_DC=x.x.x.x
+      #  - SAMBA_HOSTNAME=fs1
+      #  - SAMBA_HOSTIP=x.x.x.x
+      #  - SAMBA_DNS_BACKEND=SAMBA_INTERNAL
+      #  - SAMBA_DNS_FORWARDER=x.x.x.x
+      #  - SAMBA_NOCOMPLEXPWD=true
+      #  - SUBNET=x.x.x.x/24
+      #  - GATEWAY=x.x.x.x
     networks:
       samba-network:
-        ipv4_address: 10.0.2.201
+        ipv4_address: 10.10.98.13
 
   samba-dc2:
     image: mmoerz/docker-samba-ad-dc:4.18.9
@@ -108,16 +110,9 @@ services:
       - GATEWAY=x.x.x.x
     networks:
       samba-network:
-        ipv4_address: 10.0.2.200
+        ipv4_address: 10.10.98.14
 
 networks:
   samba-network:
-    driver: macvlan
-    ipam:
-      config:
-        - subnet: 10.0.2.0/24
-          ip_range: 10.0.2.0/24
-          gateway: 10.0.2.2
-    driver_opts:
-      parent: enp0s3
-  
+    name: samba-network
+    external: true

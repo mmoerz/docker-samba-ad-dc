@@ -80,6 +80,7 @@ echo -e "${YEL}SAMBA_RESOLVCONF:\t\t${NC}${SAMBA_RESOLVCONF}"
 ##### BEGIN of function definitions
 
 function patch_resolv {
+  NEWNAMESERVER=$1
   echo -e "${RED}==== old resolv.conf"
 cat /etc/resolv.conf
   echo -e "${RED}==== END old resolv.conf"
@@ -91,18 +92,23 @@ cat /etc/resolv.conf
   if [ "X${SAMBA_RESOLVCONF}" == "XREADONLY" ] ; then
     echo -e "${GR}/etc/resolv.conf is provided by docker"
     return
+  elif [ "X${SAMBA_RESOLVCONF}" == "XHOSTIP" ] ; then
+    echo -e "${GR} using HOSTIP for resolv.conf"
+    NEWNAMESERVER=${SAMBA_HOSTIP}
   fi
 
+
   echo -e "${RED}overwriting resolv.conf"
-  echo -e "${YEL}setting nameserver $1"
+  echo -e "${YEL}setting nameserver ${NEWNAMESERVER}"
 cat > /etc/resolv.conf <<EOF
-nameserver $1
+nameserver ${NEWNAMESERVER}
 search ${SAMBA_AD_REALM,,}
 options ndots:0
 EOF
 }
 
 function create_default_krb5_conf {
+  echo "writing /etc/krb5.conf"
   cat > /etc/krb5.conf <<EOF
 [libdefaults]
     dns_lookup_realm = false
@@ -112,6 +118,7 @@ EOF
 }
 
 function create_fileserver_smbconf {
+  echo "creating fileserver smb.conf"
 cat > /etc/samba/smb.conf <<EOF
 [global]
 	security = ADS
@@ -131,6 +138,7 @@ cat > /etc/samba/smb.conf <<EOF
 	read only = No
 
 EOF
+  echo "creating /etc/samba/user.map"
 cat > /etc/samba/user.map <<EOF
 !root = ${SAMBA_DOMAIN}\Administrator
 EOF
@@ -164,6 +172,9 @@ function check_etchosts {
     echo /etc/hosts - Begin
     grep ${LOWERCASE_DOMAIN} /etc/hosts
     echo /etc/hosts - end
+    HOSTNAME=`hostname`
+    HOSTNAMED=`hostname -d`
+    echo ${HOSTNAME} ${HOSTNAMED}
   fi
 }
 
@@ -222,8 +233,10 @@ if [ ! -f /etc/samba/smb.conf ]; then
 #send "\$pwd"
 #EOF
 #	 /usr/bin/expect /root/kinit_test.expect
-      echo "${SAMBA_AD_ADMIN_PASSWD}" | kinit administrator -c KRB5CCNAME
-      klist
+      echo "${SAMBA_AD_ADMIN_PASSWD}" | kinit administrator 
+      #-c KRB5CCNAME
+      klist 
+      #-c KRB5CCNAME
       RC=$?
       # now join the domain
       if [ "${SAMBA_PROVISION_TYPE}" == "2NDDC" ]; then
@@ -231,8 +244,8 @@ if [ ! -f /etc/samba/smb.conf ]; then
           echo -e "${GR} ******************************************"
           echo -e "${GR} JOINING DOMAIN ${SAMBA_AD_REALM} as DC now" 
           echo -e "${GR} ******************************************"
-          samba-tool domain join ${SAMBA_AD_REALM} DC --use-kerberos \
-            --use-krb5-ccache=KRB5CCNAME
+          samba-tool domain join ${SAMBA_AD_REALM} DC --use-kerberos 
+            #--use-krb5-ccache=KRB5CCNAME
         fi
       fi
       if [ "${SAMBA_PROVISION_TYPE}" == "MEMBER" ]; then
@@ -249,7 +262,12 @@ if [ ! -f /etc/samba/smb.conf ]; then
 
           check_etchosts
           fix_etchosts
-          samba-tool domain join ${SAMBA_AD_REALM} MEMBER -k yes
+          echo -e "${GR} joining ${SAMBA_AD_REALM} as member"
+          # -N nopass (otherwise it freaks and asks for a pwd)
+          samba-tool domain join ${SAMBA_AD_REALM} MEMBER \
+            -N \
+            --use-kerberos=required 
+            #--use-krb5-ccache=KRB5CCNAME
         fi
       fi
     fi
@@ -285,6 +303,7 @@ else
 	fix_etchosts
   # maybe this is a problem on a 2nd dc
 	patch_resolv ${REMOTE_DC}
+  create_default_krb5_conf
 fi
 
 cat <<EOF

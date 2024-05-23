@@ -28,8 +28,6 @@ services:
           #extra_hosts:
           #- "dc1.my.domain:10.10.98.12"
           #
-
-
 networks:
   samba-network:
     name: samba-network
