@@ -92,6 +92,9 @@ cat /etc/resolv.conf
   if [ "X${SAMBA_RESOLVCONF}" == "XREADONLY" ] ; then
     echo -e "${GR}/etc/resolv.conf is provided by docker"
     return
+  elif [ "X${SAMBA_RESOLVCONF}" == "XLOCALHOST" ] ; then
+    echo -e "${GR} using localhost for resolv.conf"
+    NEWNAMESERVER="127.0.0.1"
   elif [ "X${SAMBA_RESOLVCONF}" == "XHOSTIP" ] ; then
     echo -e "${GR} using HOSTIP for resolv.conf"
     NEWNAMESERVER=${SAMBA_HOSTIP}
@@ -169,9 +172,9 @@ function check_etchosts {
     echo -e "${GR} fqdn for server in hosts file"
   fi
   if [ ${SAMBA_DEBUG} -gt 0 ] ; then
-    echo /etc/hosts - Begin
+    echo ==== /etc/hosts
     grep ${LOWERCASE_DOMAIN} /etc/hosts
-    echo /etc/hosts - end
+    echo ==== /etc/hosts
     HOSTNAME=`hostname`
     HOSTNAMED=`hostname -d`
     echo ${HOSTNAME} ${HOSTNAMED}
