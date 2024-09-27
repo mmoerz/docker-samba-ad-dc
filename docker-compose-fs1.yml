@@ -14,7 +14,7 @@ volumes:
 
 services:
   samba-member:
-    #command: samba-member
+    build: smb-ad-dc 
     image: mmoerz/docker-samba-ad-dc:4.20
     hostname: fs1
     domainname: my.domain

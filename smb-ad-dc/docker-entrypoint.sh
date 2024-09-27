@@ -241,6 +241,7 @@ if [ ! -f /etc/samba/smb.conf ]; then
       klist 
       #-c KRB5CCNAME
       RC=$?
+      echo "klist: ${RC}"
       # now join the domain
       if [ "${SAMBA_PROVISION_TYPE}" == "2NDDC" ]; then
         if [ $RC -eq 0 ]; then
@@ -259,6 +260,7 @@ if [ ! -f /etc/samba/smb.conf ]; then
           # hmm that is the other difference
           create_fileserver_smbconf 
 
+          # restore 
           # bugfix for samba - THX!!
           ldbadd -H /var/lib/samba/private/secrets.ldb </dev/null
           ldbadd -H /var/lib/samba/private/sam.ldb </dev/null
