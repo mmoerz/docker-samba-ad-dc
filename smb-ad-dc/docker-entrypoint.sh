@@ -27,7 +27,7 @@ SAMBA_NOCOMPLEXPWD=${SAMBA_NOCOMPLEXPWD:-false}
 SAMBA_HOSTIP=${SAMBA_HOSTIP:-NONE}
 SAMBA_DEBUG=${SAMBA_DEBUG:-0}
 SAMBA_DEBUG=$(("${SAMBA_DEBUG}"))
-SAMBA_RESOLVCONF=${SAMBA_RESOLVCONF:-READONLY}
+SAMBA_RESOLVCONF=${SAMBA_RESOLVCONF:-READONLY^^}
 
 HOSTIP_OPTION=""
 if [ "${SAMBA_HOSTIP}" != "NONE" ]; then
@@ -99,7 +99,6 @@ cat /etc/resolv.conf
     echo -e "${GR} using HOSTIP for resolv.conf"
     NEWNAMESERVER=${SAMBA_HOSTIP}
   fi
-
 
   echo -e "${RED}overwriting resolv.conf"
   echo -e "${YEL}setting nameserver ${NEWNAMESERVER}"
@@ -236,6 +235,7 @@ if [ ! -f /etc/samba/smb.conf ]; then
 #send "\$pwd"
 #EOF
 #	 /usr/bin/expect /root/kinit_test.expect
+      echo "setting up kinit"
       echo "${SAMBA_AD_ADMIN_PASSWD}" | kinit administrator 
       #-c KRB5CCNAME
       klist 
@@ -327,7 +327,13 @@ case "${SAMBA_PROVISION_TYPE}" in
     exec samba -i < /dev/null
     ;;
   "MEMBER")
-    exec /usr/bin/supervisord -n -c /etc/supervisord.conf < /dev/null
+    CONFFILE=/etc/supervisor/supervisord.conf
+    if [ -f ${CONFFILE} ]; then 
+      echo "file >${CONFFILE}< exists" 
+    else 
+      CONFFILE=/etc/supervisord.conf 
+    fi
+    exec /usr/bin/supervisord -n -c ${CONFFILE} < /dev/null 
     ;;
   *)
     echo -e ${RED} Unknown Provisioning type: ${SAMBA_PROVISION_TYPE} detected

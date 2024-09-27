@@ -28,9 +28,11 @@ RUN apt-get autoclean && \
 #RUN mkdir -f /srv/shares
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY supervisord.conf /etc/supervisor/supervisord.conf
 COPY tools /root/tools
 RUN chmod +x /root/tools/*.sh
+# backup /var/lib/samba
+RUN tar -cjf /root/var_lib_samba.tbz2 /var/lib/samba
 
 LABEL org.label-schema.build-date=$build_date org.label-schema.vcs-url="https://github.com/mmoerz/docker-samba-ad-ac" org.label-schema.vcs-ref=$version org.label-schema.schema-version="1.0"
 
