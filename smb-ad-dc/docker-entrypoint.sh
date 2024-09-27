@@ -235,6 +235,12 @@ if [ ! -f /etc/samba/smb.conf ]; then
 #send "\$pwd"
 #EOF
 #	 /usr/bin/expect /root/kinit_test.expect
+      # fix missing ldbs
+      if [ ! -f /var/lib/samba/private/secrets.ldb ] ; then
+        echo "restoring /var/lib/samba"
+        cd / ; tar -xzf /root/var_lib_samba.tgz ;
+      fi
+
       echo "setting up kinit"
       echo "${SAMBA_AD_ADMIN_PASSWD}" | kinit administrator 
       #-c KRB5CCNAME
@@ -262,8 +268,12 @@ if [ ! -f /etc/samba/smb.conf ]; then
 
           # restore 
           # bugfix for samba - THX!!
+          if [ ! -f /var/lib/samba/private/secrets.ldb ] ; then
           ldbadd -H /var/lib/samba/private/secrets.ldb </dev/null
+          fi
+          if [ ! -f /var/lib/samba/private/sam.ldb ] ; then
           ldbadd -H /var/lib/samba/private/sam.ldb </dev/null
+          fi
 
           check_etchosts
           fix_etchosts
