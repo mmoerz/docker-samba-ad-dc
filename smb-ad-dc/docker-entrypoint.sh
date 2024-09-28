@@ -134,6 +134,10 @@ cat > /etc/samba/smb.conf <<EOF
 	idmap config * : range = 10000 - 999999
 
 	username map = /etc/samba/user.map
+  # krbtab - see with klist -k
+  dedicated keytab file = /etc/krb5.keytab
+  kerberos method = secrets and keytab
+  winbind refresh tickets = Yes
 
 [sysvol]
 	path = /var/lib/samba/sysvol
