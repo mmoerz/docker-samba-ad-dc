@@ -290,6 +290,8 @@ if [ ! -f /etc/samba/smb.conf ]; then
               tar -xzf /root/cups.tgz
               echo "cups config restored"
             fi
+          else 
+            echo "cups config already present"
           fi
 
           check_etchosts
