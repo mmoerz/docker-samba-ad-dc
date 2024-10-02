@@ -282,7 +282,7 @@ if [ ! -f /etc/samba/smb.conf ]; then
           ldbadd -H /var/lib/samba/private/sam.ldb </dev/null
           fi
 
-          if [ !-f /etc/cups/cupsd.conf ] ; then 
+          if [ ! -f /etc/cups/cupsd.conf ] ; then 
             if [ -f /root/etc_cups.tgz ] ; then
               echo "cups config not found, restoring"
               cd /
