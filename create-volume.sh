@@ -41,6 +41,9 @@ elif [ "X$1" == "Xaddc" ]; then
 elif [ "X$1" == "Xmember" ]; then
   # fileserver directories
   createDirsAndRegisterWithDocker "$2" "etc var/lib var/log supervisord shares"
+elif [ "X$1" == "Xcups" ]; then
+  # fileserver directories
+  createDirsAndRegisterWithDocker "$2" "etc var/lib var/log supervisord shares"
 else
   echo "Unknown Option: >$1<"
   echo "Use --help to see options"

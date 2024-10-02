@@ -41,7 +41,7 @@ set +e
 #EOF
 # alpine 3.19 
 md5sum -c <<EOF
-078fdd0eb6e940e070ba7d1b6bbc2d45  /etc/samba/smb.conf
+8b59f36f371f92600fed2c4b3a95764d  /etc/samba/smb.conf
 EOF
 
 if [ $? -eq 0 ]; then
