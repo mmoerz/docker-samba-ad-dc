@@ -15,10 +15,12 @@ ENV DEBIAN_FRONTEND noninteractive
 # PKG: acl for getfacl & setfacl
 # winbindd is a must for ac dc
 RUN apt-get clean && apt-get update && \
-    apt-get install -y attr acl samba smbclient samba-vfs-modules winbind \
+    apt-get install -y attr acl samba \
+                    smbclient samba-vfs-modules winbind \
                     libnss-winbind libpam-winbind \
-                    openssl supervisor
-RUN apt-get install -y ldap-utils ldb-tools cifs-utils smbldap-tools 
+                    openssl supervisor \
+    apt-get install -y ldap-utils ldb-tools cifs-utils smbldap-tools \
+    apt-get install samba-ad-dc
 # tools for debugging
 RUN apt-get install -y vim bind9-host krb5-user iputils-ping iproute2
 RUN apt-get autoclean && \
