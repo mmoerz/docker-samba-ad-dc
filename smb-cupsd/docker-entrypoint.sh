@@ -241,8 +241,11 @@ if [ ! -f /etc/samba/smb.conf ]; then
 #	 /usr/bin/expect /root/kinit_test.expect
       # fix missing ldbs
       if [ ! -f /var/lib/samba/private/secrets.ldb ] ; then
-        echo "restoring /var/lib/samba"
-        cd / ; tar -xzf /root/var_lib_samba.tgz ;
+        echo "trying to restore /var/lib/samba"
+        if [ -f /root/var_lib_samba.tgz ] ; then
+          cd / ; tar -xzf /root/var_lib_samba.tgz ;
+          echo "/var/lib/samba restored"
+        fi
       fi
 
       echo "setting up kinit"
