@@ -1,5 +1,7 @@
 volumes:
-  samba_cups_etc:
+  samba_cups_etc_samba:
+    external: true
+  smba_cups_etc_cups:
     external: true
   samba_cups_varlib:
     external: true
@@ -13,13 +15,13 @@ volumes:
 services:
   samba-member:
     build: smb-cupsd
-    image: mmoerz/docker-samba-ad-dc:4.20
+    image: mmoerz/docker-samba-ad-dc-ubuntu-cups:4.20
     hostname: cups
     domainname: my.domain
     privileged: true
     dns: 10.10.98.12
     volumes:
-      - samba_cups_etc:/etc/samba
+      - samba_cups_etc_samba:/etc/samba
       #- samba_cups_cups:/etc/cupsd/cup
       - samba_cups_varlib:/var/lib/samba
       - samba_cups_varlog:/var/log/samba
