@@ -335,6 +335,12 @@ server and can be safely ignored (2015)
 https://groups.google.com/g/linux.samba/c/LguyNFTdCPM
 EOF
 
+echo "checking /var/lib/samba permissions"
+ls -la /var/lib | grep samba
+
+echo "must match"
+echo "drwxr-xr-x 7 root root"
+
 
 #if [ "$1" = 'samba' ]; then
 #if [ "$1" = 'samba-member' ]; then
