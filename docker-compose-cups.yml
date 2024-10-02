@@ -1,7 +1,7 @@
 volumes:
-  samba_cups_etc_samba:
+  samba_cups_etcsamba:
     external: true
-  smba_cups_etc_cups:
+  smba_cups_etccups:
     external: true
   samba_cups_varlib:
     external: true
@@ -21,8 +21,8 @@ services:
     privileged: true
     dns: 10.10.98.12
     volumes:
-      - samba_cups_etc_samba:/etc/samba
-      - samba_cups_cups:/etc/cups
+      - samba_cups_etcsamba:/etc/samba
+      - samba_cups_etccups:/etc/cups
       - samba_cups_varlib:/var/lib/samba
       - samba_cups_varlog:/var/log/samba
       - samba_cups_supervisord:/var/log/supervisord
