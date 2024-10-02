@@ -1,0 +1,48 @@
+version: '3.2'
+
+volumes:
+  samba_cups_etc:
+    external: true
+  samba_cups_varlib:
+    external: true
+  samba_cups_varlog:
+    external: true
+  samba_cups_supervisord:
+    external: true
+  samba_cups_shares:
+    external: true
+
+services:
+  samba-member:
+    build: smb-cups
+    image: mmoerz/docker-samba-ad-dc:4.20
+    hostname: cups
+    domainname: my.domain
+    privileged: true
+    dns: 10.10.98.12
+    volumes:
+      - samba_cups_etc:/etc/samba
+      - samba_cups_varlib:/var/lib/samba
+      - samba_cups_varlog:/var/log/samba
+      - samba_cups_supervisord:/var/log/supervisord
+      - samba_cups_shares:/shares
+    env_file:
+      - ./samba-member.env
+      #environment:
+      #  - SAMBA_PROVISION_TYPE=JOIN
+      #  - REMOTE_DC=x.x.x.x
+      #  - SAMBA_HOSTNAME=cups
+      #  - SAMBA_HOSTIP=x.x.x.x
+      #  - SAMBA_DNS_BACKEND=SAMBA_INTERNAL
+      #  - SAMBA_DNS_FORWARDER=x.x.x.x
+      #  - SAMBA_NOCOMPLEXPWD=true
+      #  - SUBNET=x.x.x.x/24
+      #  - GATEWAY=x.x.x.x
+    networks:
+      samba-network:
+        ipv4_address: 10.10.98.13
+
+networks:
+  samba-network:
+    name: samba-network
+    external: true

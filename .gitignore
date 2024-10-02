@@ -2,3 +2,4 @@ vol/
 data/
 samba.env
 samba-member.env
+docker-compose.yml
