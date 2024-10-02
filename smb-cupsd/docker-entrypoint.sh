@@ -287,7 +287,7 @@ if [ ! -f /etc/samba/smb.conf ]; then
             if [ -f /root/etc_cups.tgz ] ; then
               echo "cups config restoring"
               cd /
-              tar -xzf /root/cups.tgz
+              tar -xzf /root/etc_cups.tgz
               echo "cups config restored"
             fi
           else 
