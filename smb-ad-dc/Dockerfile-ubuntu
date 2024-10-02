@@ -32,7 +32,7 @@ COPY supervisord.conf /etc/supervisor/supervisord.conf
 COPY tools /root/tools
 RUN chmod +x /root/tools/*.sh
 # backup /var/lib/samba
-RUN tar -czf /root/var_lib_samba.tgz2 /var/lib/samba
+RUN tar -czf /root/var_lib_samba.tgz /var/lib/samba
 
 LABEL org.label-schema.build-date=$build_date org.label-schema.vcs-url="https://github.com/mmoerz/docker-samba-ad-ac" org.label-schema.vcs-ref=$version org.label-schema.schema-version="1.0"
 

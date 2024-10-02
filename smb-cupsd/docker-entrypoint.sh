@@ -282,6 +282,10 @@ if [ ! -f /etc/samba/smb.conf ]; then
           ldbadd -H /var/lib/samba/private/sam.ldb </dev/null
           fi
 
+          if [ !-f /etc/cups/cupsd.conf -a -f /root/etc_cups.tgz ] ; then
+            cd /; tar -xzf /root/cups.tgz
+          fi
+
           check_etchosts
           fix_etchosts
           echo -e "${GR} joining ${SAMBA_AD_REALM} as member"

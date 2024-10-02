@@ -7,7 +7,7 @@ ARG build_date
 #
 # TODO: volume for private
 #
-VOLUME ["/var/lib/samba", "/etc/samba", "/var/log/samba", "/srv/shares"]
+VOLUME ["/var/lib/samba", "/etc/samba", "/etc/cups/", "/var/log/samba", "/srv/shares"]
 ENV DEBIAN_FRONTEND noninteractive
 
 #COPY smb.conf /etc/samba/smb.conf
@@ -30,6 +30,8 @@ COPY supervisord.conf /etc/supervisor/supervisord.conf
 COPY tools /root/tools
 RUN chmod +x /root/tools/*.sh
 # backup /var/lib/samba
+RUN tar -czf /root/etc_cups.tgz /etc/cups
+
 
 LABEL org.label-schema.build-date=$build_date org.label-schema.vcs-url="https://github.com/mmoerz/docker-samba-ad-ac" org.label-schema.vcs-ref=$version org.label-schema.schema-version="1.0"
 
