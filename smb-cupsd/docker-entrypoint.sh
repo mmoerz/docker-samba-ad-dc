@@ -283,8 +283,9 @@ if [ ! -f /etc/samba/smb.conf ]; then
           fi
 
           if [ ! -f /etc/cups/cupsd.conf ] ; then 
+            echo "cups config not found"
             if [ -f /root/etc_cups.tgz ] ; then
-              echo "cups config not found, restoring"
+              echo "cups config restoring"
               cd /
               tar -xzf /root/cups.tgz
               echo "cups config restored"
