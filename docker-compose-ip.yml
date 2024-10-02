@@ -1,5 +1,3 @@
-version: '3.2'
-
 services:
   samba:
     build: smb-ad-dc
