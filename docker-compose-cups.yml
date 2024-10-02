@@ -14,7 +14,7 @@ volumes:
 
 services:
   samba-member:
-    build: smb-cups
+    build: smb-cupsd
     image: mmoerz/docker-samba-ad-dc:4.20
     hostname: cups
     domainname: my.domain
@@ -22,6 +22,7 @@ services:
     dns: 10.10.98.12
     volumes:
       - samba_cups_etc:/etc/samba
+      #- samba_cups_cups:/etc/cupsd/cup
       - samba_cups_varlib:/var/lib/samba
       - samba_cups_varlog:/var/log/samba
       - samba_cups_supervisord:/var/log/supervisord

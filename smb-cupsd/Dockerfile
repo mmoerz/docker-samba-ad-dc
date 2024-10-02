@@ -15,7 +15,8 @@ ENV DEBIAN_FRONTEND noninteractive
 # PKG: acl for getfacl & setfacl
 # winbindd is a must for ac dc
 RUN apt-get clean && apt-get update && \
-    apt-get install -y cupsd
+    apt-get install -y cups-server-common \
+         cups cups-client
 # tools for debugging
 #RUN apt-get install -y vim bind9-host krb5-user iputils-ping iproute2
 RUN apt-get autoclean && \
