@@ -282,10 +282,12 @@ if [ ! -f /etc/samba/smb.conf ]; then
           ldbadd -H /var/lib/samba/private/sam.ldb </dev/null
           fi
 
-          if [ !-f /etc/cups/cupsd.conf -a -f /root/etc_cups.tgz ] ; then
-            echo "cups config not found, restoring"
-            cd /; tar -xzf /root/cups.tgz
-            echo "cups config restored"
+          if [ !-f /etc/cups/cupsd.conf ] ; 
+            if [ -f /root/etc_cups.tgz ] ; then
+              echo "cups config not found, restoring"
+              cd /; tar -xzf /root/cups.tgz
+              echo "cups config restored"
+            fi
           fi
 
           check_etchosts
