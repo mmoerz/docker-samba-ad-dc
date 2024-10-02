@@ -4,9 +4,6 @@
 
 alpine based docker container for samba active directory server.
 
-(ubuntu was nice as long as it worked. After it got hard to setup, 
- I switched to alpine.)
-
 This was inspired by other older docker containers that either don't work or
 use completely outdated versions of samba. 
 To fullfill my own set of requirements, I wrote this from scratch.
@@ -17,6 +14,26 @@ The container *needs* a macvtap based network. You may try other network
 types, however you have been warned, it will most likely not work without problems.
 
 ## Preflight
+
+Well since there is only the *macvtap* route (for me at least) there
+is no need for an overly complex docker-compose.yml. This makes setting up
+easier. Just copy (or link) your choice of docker-copose.yml and set the
+values inside.
+
+Since we roll with a *macvtap* setup, you need to setup a user-defined
+network for it in docker that is called 'samba-network'. You can use the
+script `create-network.sh` or run:
+
+```
+docker network create -d macvlan \
+    --subnet=<SUBNET> \
+    --gateway=<GATEWAY>  \
+    --ip-range=<SUBNET> \
+    -o parent=<network-interface> samba-network
+```
+replace the <> values accordingly. This only needs to be done once on a docker
+host, because it will persist (until deleted).
+
 
 Setup your own samba.env file with your choice of options by copying the 
 example and editing the values.
