@@ -17,7 +17,7 @@ ENV DBUS_SESSION_BUS_ADDRESS="unix:path=/var/run/dbus/system_bus_socket"
 # winbindd is a must for ac dc
 RUN apt-get clean && apt-get update && \
     apt-get install -y cups-server-common \
-         cups cups-client \
+         cups cups-client foomatic-db-engine \
          dbus avahi-daemon
 # tools for debugging
 #RUN apt-get install -y vim bind9-host krb5-user iputils-ping iproute2

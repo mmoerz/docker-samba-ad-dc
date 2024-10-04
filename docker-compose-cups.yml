@@ -27,9 +27,9 @@ services:
       - samba_cups_varlog:/var/log/samba
       - samba_cups_supervisord:/var/log/supervisord
       - samba_cups_shares:/shares
-    env_file:
-      - ./samba-member.env
-      #environment:
+    #env_file:
+    #  - ./samba-member.env
+    environment:
       #  - SAMBA_PROVISION_TYPE=JOIN
       #  - REMOTE_DC=x.x.x.x
       #  - SAMBA_HOSTNAME=cups
