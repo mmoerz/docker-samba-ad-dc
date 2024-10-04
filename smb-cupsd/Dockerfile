@@ -19,6 +19,7 @@ RUN apt-get clean && apt-get update && \
     apt-get install -y cups-server-common \
          cups cups-client foomatic-db-engine \
          dbus avahi-daemon
+RUN apt-get install c2050
 # tools for debugging
 #RUN apt-get install -y vim bind9-host krb5-user iputils-ping iproute2
 RUN apt-get autoclean && \
