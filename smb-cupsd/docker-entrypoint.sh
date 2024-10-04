@@ -365,6 +365,7 @@ case "${SAMBA_PROVISION_TYPE}" in
       CONFFILE=/etc/supervisord.conf 
     fi
     # cleanup for our lazy dbus
+    echo "I kill the dbus pid file (if it exists)"
     rm -f /run/dbus/pid 
     exec /usr/bin/supervisord -n -c ${CONFFILE} < /dev/null 
     ;;
