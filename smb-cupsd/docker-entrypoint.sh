@@ -364,6 +364,8 @@ case "${SAMBA_PROVISION_TYPE}" in
     else 
       CONFFILE=/etc/supervisord.conf 
     fi
+    # cleanup for our lazy dbus
+    rm -f /run/dbus/pid 
     exec /usr/bin/supervisord -n -c ${CONFFILE} < /dev/null 
     ;;
   *)
