@@ -19,8 +19,8 @@ RUN apt-get clean && apt-get update && \
                     smbclient samba-vfs-modules winbind \
                     libnss-winbind libpam-winbind \
                     openssl supervisor \
-    apt-get install -y ldap-utils ldb-tools cifs-utils smbldap-tools \
-    apt-get install samba-ad-dc
+                    ldap-utils ldb-tools cifs-utils smbldap-tools \
+                    samba-ad-dc
 # tools for debugging
 RUN apt-get install -y vim bind9-host krb5-user iputils-ping iproute2
 RUN apt-get autoclean && \
