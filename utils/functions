@@ -1,0 +1,12 @@
+
+CFILE=../docker-compose.yml
+
+SUBNET=$(cat $CFILE | \
+      sed -ne 's/\s\+-\s\+SUBNET=\([0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+\/[0-9]\+\)/\1/p')
+
+GATEWAY=$(cat $CFILE |
+      sed -ne 's/\s\+-\s\+GATEWAY=\([0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+\)/\1/p')
+
+echo subnet:  $SUBNET
+echo gateway: $GATEWAY
+
