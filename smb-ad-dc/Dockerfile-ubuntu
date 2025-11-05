@@ -1,5 +1,5 @@
-FROM ubuntu:oracular
-MAINTAINER Michael Moerz <michael AT moerz dot co dot at .>
+FROM ubuntu:plucky
+LABEL authors="Michael Moerz <michael AT moerz dot co dot at .>"
 
 ARG version
 ARG build_date

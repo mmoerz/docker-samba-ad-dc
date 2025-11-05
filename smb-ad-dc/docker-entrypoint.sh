@@ -5,6 +5,8 @@ NC='\033[0m' #no color
 YEL='\033[1;33m'
 GR='\033[1;32m'
 
+echo -e "${GR}Starting $0"
+
 #ENVVARS="SAMBA_DOMAIN SAMBA_AD_REALM SAMBA_AD_ADMIN_PASSWD"
 
 # as it seems, hostname is not a good idea to configure script based
@@ -40,7 +42,7 @@ set +e
 #078fdd0eb6e940e070ba7d1b6bbc2d45  /etc/samba/smb.conf
 #EOF
 # alpine 3.19 
-md5sum -c <<EOF
+md5sum -c 2&>1 <<EOF
 078fdd0eb6e940e070ba7d1b6bbc2d45  /etc/samba/smb.conf
 EOF
 
@@ -167,20 +169,21 @@ function fix_etchosts {
 
 # only checks hosts file for fqdn
 function check_etchosts {
-  echo -ne "checking /etc/hosts entries: "
+  echo -ne "checking /etc/hosts for >${LOWERCASE_DOMAIN}< : "
 	fhelp=`grep ${LOWERCASE_DOMAIN} /etc/hosts | wc -l`
 	if [ "$fhelp" == "0" ] ; then
-    echo -e "${RED}missing fqdn for server in hosts file"
+    echo -e "${RED}missing fqdn for server in hosts file !!!"
   else
     echo -e "${GR} fqdn for server in hosts file"
   fi
+
   if [ ${SAMBA_DEBUG} -gt 0 ] ; then
     echo ==== /etc/hosts
-    grep ${LOWERCASE_DOMAIN} /etc/hosts
+    #grep ${LOWERCASE_DOMAIN} /etc/hosts
+    cat /etc/hosts
     echo ==== /etc/hosts
-    HOSTNAME=`hostname`
-    HOSTNAMED=`hostname -d`
-    echo ${HOSTNAME} ${HOSTNAMED}
+    echo "HOSTNAME: >$(hostname)<"
+    echo "Hostname -d: >$(hostname -d)<"
   fi
 }
 
@@ -193,6 +196,7 @@ check_etchosts
 
 if [ ! -f /etc/samba/smb.conf ]; then
     if [ ${SAMBA_PROVISION_TYPE} == "SERVER" ] ; then
+        fix_etchosts
         echo -e "samba-tool domain provision --domain=${SAMBA_DOMAIN} \
             --adminpass=${SAMBA_AD_ADMIN_PASSWD} \
             --server-role=dc \
