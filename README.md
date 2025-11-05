@@ -13,6 +13,16 @@ To fullfill my own set of requirements, I wrote this from scratch.
 The container *needs* a macvtap based network. You may try other network 
 types, however you have been warned, it will most likely not work without problems.
 
+# podman notes
+
+[podman networking](https://github.com/containers/podman/blob/main/docs/tutorials/basic_networking.md)
+[podman aardvark-dns](https://github.com/containers/aardvark-dns/blob/main/config.md)
+[podman don't mix dns configuration types](https://github.com/containers/netavark/issues/855)
+[podman make aardvark-dns available](https://www.reddit.com/r/podman/comments/18ke16d/how_to_access_podman_aardvarkdns_from_host_machine/)
+
+# proxmox alternative
+[lxc samba](https://www.reddit.com/r/Proxmox/comments/1ht0prj/tutorial_for_samba_share_in_an_lxc/)
+
 ## Preflight
 
 Well since there is only the *macvtap* route (for me at least) there
